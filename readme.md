@@ -1,4 +1,4 @@
-# Task
+# Task (problem and requirements)
 *this is my assignment for university practice in the 2nd year*
 
 Develop a program for working with the database "Employees of the Research Institute", which includes the following information: department
