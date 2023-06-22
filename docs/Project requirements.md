@@ -1,6 +1,6 @@
 <hr>
 
-# Functional requirements:
+# Functional requirements
 
 ### I/O:
 - Simple desktop GUI with any usable appearance for simple users
@@ -50,6 +50,14 @@
 - User should be able to access his data storage on any computer with internet and with installed client or (OPTIONAL) even without installation (web client)
 - Each user or group of users should have their own data storage, not one for everyone
 
+<hr>
+
+# Non-functional requirements
+
+### Security:
+- All user\`s data should be safe by default ways
+- Access to user data should requires password
+- (OPTIONAL) Network and other connections should be safe
 
 
 <hr>
