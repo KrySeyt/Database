@@ -2,7 +2,7 @@
 *this is my assignment for university practice in the 2nd year*
 
 Develop a program for working with the database "Employees of the Research Institute", which includes the following information: department
-No., service number, FCs, employee topic No., duration of work in months, position in the company ID,
+No., service number, last name, first name, patronymic, employee topic No., duration of work in months, position in the company ID,
 titles, salary, etc. Develop a user-friendly interface and organize the creation, deleting, searching and updating database records.
 
 Find the longest-lasting job, the highest-paid employee, the distribution of employees by topics, titles, etc. \

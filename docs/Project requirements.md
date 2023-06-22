@@ -16,7 +16,7 @@
 - Any long-term data storage
 
 - #### Employee info:
-	- FCs
+	- Last name, first name, patronymic
 	- Department number
 	- Service number
 	- Number of the topic that the he is working on
