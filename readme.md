@@ -9,3 +9,6 @@ Find the longest-lasting job, the highest-paid employee, the distribution of emp
 Create a graphical interpretation of the result using graphs, pie charts and histograms.
 
 Find out the growth of employees with a certain title by year and make a forecast about their number for the next two years
+
+# Requirements, architecture, database schema
+You can find it in `/docs/`
