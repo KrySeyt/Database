@@ -1,6 +1,7 @@
 # Python
 venv
 __pycache__
+.mypy_cache
 
 # Pycharm
 .idea
