@@ -2,7 +2,7 @@ FROM python:3.11.4-slim-bullseye
 RUN apt-get update && \
     rm -rf /var/lib/apt
 
-WORKDIR /db_backend/
+WORKDIR /backend/
 
 ENV VIRTUAL_ENV="/venv"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
