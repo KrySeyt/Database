@@ -1,6 +1,13 @@
-__pycache__
-.idea
+# Python
 venv
-StatisticsAndAnalysis
+__pycache__
+
+# Pycharm
+.idea
+
+# Obsidian
 .obsidian
+
+# Misc
 *.bkp
+*.http
