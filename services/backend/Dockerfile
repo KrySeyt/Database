@@ -14,6 +14,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt --no-cache-dir
 
-COPY ./src/ ./src/
+
+COPY mypy.ini .
+COPY ./src/ .
 
 CMD uvicorn src.main:app --host 0.0.0.0 --port 8000
