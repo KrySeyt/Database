@@ -19,4 +19,4 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY mypy.ini .
 COPY ./src/ ./src/
 
-CMD /bin/bash
+CMD python src/main.py
