@@ -2,6 +2,7 @@ FROM python:3.11.4-slim-bullseye
 
 RUN apt-get update
 RUN apt-get install xauth -y
+RUN apt-get install tk -y
 RUN rm -rf /var/lib/apt
 
 ENV WORKDIR=/desktop_gui_frontend/
