@@ -1,0 +1,15 @@
+name: Desktop GUI Frontend CI
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build image
+        run: docker build -t desktop_gui_frontend services/desktop_gui_frontend
+
+      - name: Run mypy in container
+        run: docker run desktop_gui_frontend mypy src --strict
