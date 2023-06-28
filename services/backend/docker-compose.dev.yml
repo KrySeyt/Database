@@ -8,3 +8,16 @@ services:
     volumes:
       - ./:/backend/
       - /backend/venv
+    environment:
+      - BACKEND__DATABASE__POSTGRES_DSN=postgresql://postgres:postgres@postgres:5432/postgres
+    depends_on:
+      - postgres
+
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"

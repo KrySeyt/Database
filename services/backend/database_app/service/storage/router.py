@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
-from . import schema
-from . import service
+from database_app.service.storage import schema, service
 
 router = APIRouter()
 
