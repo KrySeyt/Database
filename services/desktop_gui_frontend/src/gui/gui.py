@@ -1,42 +1,40 @@
-from typing import TypeVar
+from typing import Callable
 
 import PySimpleGUI as sg
 
+from . import events_handlers
 from . import events
 from . import layouts
+from . import windows
 
 
 sg.theme("BluePurple")
 
-AT = TypeVar("AT")
-RT = TypeVar("RT")
-
 
 class GUI:
-    def __init__(self) -> None:
-        self.events_handler = events.EventsHandler()
-
+    def __init__(self, windows_factory: Callable[..., sg.Window]) -> None:
+        self.windows_factory = windows_factory
+        self.events_handler = events_handlers.EventsHandler()
         self.main_window_layout = layouts.MAIN_WINDOW_LAYOUT
-        self.windows_child_relations: dict[sg.Window, list[sg.Window]] = {}
 
     def start(self) -> None:
-        self.run_main_window()
-        self._input_handler()
+        self._run_main_window()
+        self._run_input_handler()
 
-    def run_main_window(self) -> sg.Window:
-        main_window = sg.Window(
+    def _run_main_window(self) -> sg.Window:
+        main_window = self.windows_factory(
             "Database",
             self.main_window_layout,
             location=(200, 200),
             finalize=True
         )
-        self.windows_child_relations[main_window] = []
         return main_window
 
-    def _input_handler(self) -> None:
+    def _run_input_handler(self) -> None:
         while True:
-            window, event, values = sg.read_all_windows()
+            window, event, values = windows.HierarchicalWindow.read_all_windows()
             if not window:
                 return
             event = event or events.ExitEvent.EXIT
+            assert values
             self.events_handler.handle_event(window, event, values)

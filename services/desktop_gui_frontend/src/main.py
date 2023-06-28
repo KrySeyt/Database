@@ -1,5 +1,5 @@
-from gui import gui
+from gui import gui, windows
 
 
-app_gui = gui.GUI()
+app_gui = gui.GUI(windows_factory=windows.HierarchicalWindow)
 app_gui.start()
