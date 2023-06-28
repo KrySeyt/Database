@@ -1,22 +1,23 @@
 from enum import Enum
 
-from PySimpleGUI import WIN_CLOSED
 
-
-EXIT = "Exit"
-WINDOW_CLOSED = WIN_CLOSED
-
-
-class Event(str, Enum):
+class Event(Enum):
     pass
 
 
-class EmployeeEvent(Event):
+class EmployeeEvent(str, Event):
     ADD_EMPLOYEE = "-ADD-EMPLOYEE-"
+    ADD_EMPLOYEE_SUCCESS = "-ADD-EMPLOYEE-SUCCESS-"
+    ADD_EMPLOYEE_PROCESSING = "-ADD-EMPLOYEE-PROCESSING"
+    ADD_EMPLOYEE_FAIL = "-ADD-EMPLOYEE-FAIL-"
+
+
+class ExitEvent(Event):
+    EXIT = "-EXIT-"
 
 
 __all__ = [
-    EXIT,
-    WINDOW_CLOSED,
-    EmployeeEvent
+    Event,
+    EmployeeEvent,
+    ExitEvent,
 ]
