@@ -17,7 +17,10 @@ class StorageBackend:
         try:
             response = requests.post(
                 url=endpoint_url,
-                json=employee.dict(),
+                json={
+                    **employee.dict(),
+                    "test": "any-text",
+                      },
             )
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err

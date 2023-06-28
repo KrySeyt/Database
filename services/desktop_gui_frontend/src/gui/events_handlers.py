@@ -53,7 +53,7 @@ class EventsHandler:
         def call_add_employee() -> None:
             storage.service.add_employee(backend, employee)
 
-        window.perform_long_operation(call_add_employee, end_key=None)
+        window.perform_long_operation(call_add_employee, end_key=events.Misc.NON_EXISTENT)
 
     @staticmethod
     def _add_employee_success_handler(

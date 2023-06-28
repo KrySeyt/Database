@@ -33,8 +33,10 @@ class GUI:
     def _run_input_handler(self) -> None:
         while True:
             window, event, values = windows.HierarchicalWindow.read_all_windows()
+
             if not window:
                 return
             event = event or events.ExitEvent.EXIT
             assert values
+
             self.events_handler.handle_event(window, event, values)

@@ -8,6 +8,10 @@ class Event(Enum):
     pass
 
 
+class Misc(Event):
+    NON_EXISTENT = "-NON-EXISTENT-"
+
+
 class EmployeeEvent(str, Event):
     ADD_EMPLOYEE = "-ADD-EMPLOYEE-"
     ADD_EMPLOYEE_SUCCESS = "-ADD-EMPLOYEE-SUCCESS-"
