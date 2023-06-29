@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  backend:
+    extends:
+      file: services/backend/docker-compose.dev.yml
+      service: backend
+    networks:
+      - network
+
+  postgres:
+    extends:
+      file: services/backend/docker-compose.dev.yml
+      service: postgres
+    networks:
+      - network
+
+  desktop_gui_frontend:
+    extends:
+      file: services/desktop_gui_frontend/docker-compose.dev.yml
+      service: desktop_gui_frontend
+    networks:
+      - network
+    environment:
+      - DESKTOP_GUI_FRONTEND__BACKEND_LOCATION=http://backend:8000
+    depends_on:
+      - backend
+
+
+networks:
+  network:
+    driver: bridge
