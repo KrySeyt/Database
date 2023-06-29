@@ -15,10 +15,16 @@ class EmployeeIn(EmployeeBase):
     pass
 
 
+class EmployeeInWithID(EmployeeBase):
+    id: int
+
+
 class EmployeeOut(EmployeeBase):
-    pass
+    id: int
 
 
 class Employee(EmployeeBase):
+    id: int
+
     class Config:
         orm_mode = True
