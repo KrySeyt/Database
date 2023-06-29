@@ -1,5 +1,8 @@
-from database_app.service.storage import schema
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from database_app.service.storage import schema, crud
 
 
-async def create_employee(employee: schema.EmployeeIn) -> schema.Employee:
-    return schema.Employee.from_orm(employee)
+async def create_employee(db: AsyncSession, employee_in: schema.EmployeeIn) -> schema.Employee:
+    db_employee = await crud.add_employee(db, employee_in)
+    return schema.Employee.from_orm(db_employee)

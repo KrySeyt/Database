@@ -6,8 +6,8 @@ class Base(BaseModel):
 
 
 class EmployeeBase(Base):
-    last_name: str
-    first_name: str
+    name: str
+    surname: str
     patronymic: str
 
 

@@ -1,6 +1,10 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, Depends
 
 from database_app.service.storage import schema, service
+from ... import dependencies
 
 router = APIRouter()
 
@@ -9,5 +13,8 @@ router = APIRouter()
     path="/employee",
     response_model=schema.EmployeeOut
 )
-async def create_employee(employee: schema.EmployeeIn) -> schema.Employee:
-    return await service.create_employee(employee)
+async def create_employee(
+        employee: schema.EmployeeIn,
+        db: Annotated[AsyncSession, Depends(dependencies.get_db)]
+) -> schema.Employee:
+    return await service.create_employee(db, employee)

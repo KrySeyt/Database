@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
@@ -14,5 +16,6 @@ def get_postgres_url() -> str:
     return postgres_url_with_connector
 
 
+@lru_cache()
 def get_async_engine() -> AsyncEngine:
     return create_async_engine(get_postgres_url())
