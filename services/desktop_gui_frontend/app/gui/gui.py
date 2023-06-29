@@ -28,7 +28,8 @@ class GUI:
             "Database",
             self.main_window_layout,
             location=(200, 200),
-            finalize=True
+            finalize=True,
+            resizable=True,
         )
         return main_window
 
@@ -40,5 +41,8 @@ class GUI:
                 return
             event = event or events.AppEvent.EXIT
             assert values
+
+            if __debug__:
+                print(window, event, values)
 
             self.events_handler.handle_event(window, event, values)

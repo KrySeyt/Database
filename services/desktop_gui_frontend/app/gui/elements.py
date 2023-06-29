@@ -5,7 +5,11 @@ class Element(str, Enum):
     pass
 
 
-class AddEmployeeForm(Element):
+class EmployeeList(Element):
+    TABLE = "-TABLE-"
+
+
+class EmployeeForm(Element):
     FIRST_NAME = "-EMPLOYEE-FIRST-NAME-"
     LAST_NAME = "-EMPLOYEE-LAST-NAME-"
     PATRONYMIC = "-EMPLOYEE-PATRONYMIC-"

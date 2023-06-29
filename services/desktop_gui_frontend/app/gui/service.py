@@ -8,7 +8,25 @@ from . import elements
 
 
 def update_db_list(window: sg.Window) -> None:
-    ...
+    employees = [
+        {
+            "name": "NameFirst",
+            "surname": "Surname1",
+            "patronymic": "patronymic1",
+        },
+        {
+            "name": "NameSecond",
+            "surname": "Surname2",
+            "patronymic": "patronymic2",
+        },
+        {
+            "name": "NameThird",
+            "surname": "Surname3",
+            "patronymic": "patronymic3",
+        }
+    ]
+
+    window[elements.EmployeeList.TABLE].update(values=[list(i.values()) for i in employees])
 
 
 def add_employee(
@@ -18,9 +36,9 @@ def add_employee(
 ) -> None:
 
     employee = storage.schema.EmployeeIn(
-        name=values[elements.AddEmployeeForm.FIRST_NAME],
-        surname=values[elements.AddEmployeeForm.LAST_NAME],
-        patronymic=values[elements.AddEmployeeForm.PATRONYMIC]
+        name=values[elements.EmployeeForm.FIRST_NAME],
+        surname=values[elements.EmployeeForm.LAST_NAME],
+        patronymic=values[elements.EmployeeForm.PATRONYMIC]
     )
 
     @events.raise_status_events(
@@ -36,7 +54,7 @@ def add_employee(
 
 
 def show_success(window: sg.Window) -> None:
-    window[elements.AddEmployeeForm.ADD_EMPLOYEE_STATUS].update(
+    window[elements.EmployeeForm.ADD_EMPLOYEE_STATUS].update(
         value="Success!",
         text_color="white",
         background_color="green",
@@ -45,7 +63,7 @@ def show_success(window: sg.Window) -> None:
 
 
 def show_fail(window: sg.Window) -> None:
-    window[elements.AddEmployeeForm.ADD_EMPLOYEE_STATUS].update(
+    window[elements.EmployeeForm.ADD_EMPLOYEE_STATUS].update(
         value="Fail!",
         text_color="white",
         background_color="red",
@@ -54,7 +72,7 @@ def show_fail(window: sg.Window) -> None:
 
 
 def show_processing(window: sg.Window) -> None:
-    window[elements.AddEmployeeForm.ADD_EMPLOYEE_STATUS].update(
+    window[elements.EmployeeForm.ADD_EMPLOYEE_STATUS].update(
         value="Processing...",
         text_color="white",
         background_color="grey",
