@@ -1,4 +1,4 @@
-from gui import gui, windows
+from app.gui import gui, windows
 
 
 app_gui = gui.GUI(windows_factory=windows.HierarchicalWindow)

@@ -18,6 +18,6 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt --no-cache-dir
 
 COPY mypy.ini .
-COPY ./src/ ./src/
+COPY ./app/ ./app/
 
 CMD python -O src/main.py

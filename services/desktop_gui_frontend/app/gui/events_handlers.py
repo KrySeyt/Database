@@ -2,7 +2,7 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from service import storage
+from app.service import storage
 from . import events
 from . import elements
 
