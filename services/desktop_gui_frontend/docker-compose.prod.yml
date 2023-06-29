@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  desktop_gui_frontend:
+    build: .
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - $XAUTHORITY:/root/.Xauthority
+    environment:
+      - DISPLAY=$DISPLAY
+      - XAUTHORITY=/root/.Xauthority
+      - DESKTOP_GUI_FRONTEND__BACKEND_LOCATION

@@ -19,5 +19,6 @@ RUN pip install -r requirements.txt --no-cache-dir
 
 COPY mypy.ini .
 COPY ./app/ ./app/
+COPY main.py .
 
 CMD python -O main.py
