@@ -41,8 +41,8 @@ class EventsHandler:
     ) -> None:
 
         employee = storage.schema.EmployeeIn(
-            first_name=values[elements.AddEmployeeForm.FIRST_NAME],
-            last_name=values[elements.AddEmployeeForm.LAST_NAME],
+            name=values[elements.AddEmployeeForm.FIRST_NAME],
+            surname=values[elements.AddEmployeeForm.LAST_NAME],
             patronymic=values[elements.AddEmployeeForm.PATRONYMIC]
         )
 
