@@ -13,7 +13,9 @@ Find out the growth of employees with a certain title by year and make a forecas
 # Requirements, architecture, database schema
 You can find it in `/docs/`
 
-# Setup
+# Run
+
+## Run app with local backend
 
 - Clone repo
 ```shell
@@ -25,19 +27,15 @@ git clone https://github.com/KrySeyt/StatisticsAndAnalysis.git
 cd StatisticsAndAnalysis
 ```
 
-- Build backend image
+- Run app 
 ```shell
-docker build -t backend services/backend
+docker compose -f run-locally.yml up -d
 ```
+In this case backend will be launched at the first app run
 
-- Run backend
+OR
+
+- If you wanna shutdown backend on exit from app:
 ```shell
-docker run -d -p 8000:8000 backend
+docker-compose -f run-locally.yml up --abort-on-container-exit
 ```
-
-- Check it 
-```shell
-curl localhost:8000/docs
-```
-
-Or open `localhost:8000/docs` in your browser
