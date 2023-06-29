@@ -12,3 +12,4 @@ services:
       - DISPLAY=$DISPLAY
       - XAUTHORITY=/root/.Xauthority
       - DESKTOP_GUI_FRONTEND__BACKEND_LOCATION=http://localhost:8000
+      - PYTHONUNBUFFERED=1

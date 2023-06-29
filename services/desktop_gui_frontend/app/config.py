@@ -4,7 +4,7 @@ from pydantic import BaseSettings, AnyHttpUrl
 
 
 class Settings(BaseSettings):
-    BACKEND_LOCATION: AnyHttpUrl
+    backend_location: AnyHttpUrl
 
     class Config:
         env_prefix = "DESKTOP_GUI_FRONTEND__"

@@ -19,7 +19,8 @@ class EmployeeEvent(str, Event):
     ADD_EMPLOYEE_FAIL = "-ADD-EMPLOYEE-FAIL-"
 
 
-class ExitEvent(Event):
+class AppEvent(Event):
+    START = "-START-"
     EXIT = "-EXIT-"
 
 

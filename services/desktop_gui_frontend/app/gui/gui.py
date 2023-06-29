@@ -18,7 +18,9 @@ class GUI:
         self.main_window_layout = layouts.MAIN_WINDOW_LAYOUT
 
     def start(self) -> None:
-        self._run_main_window()
+        window = self._run_main_window()
+        window.write_event_value(events.AppEvent.START, None)
+
         self._run_input_handler()
 
     def _run_main_window(self) -> sg.Window:
@@ -36,7 +38,7 @@ class GUI:
 
             if not window:
                 return
-            event = event or events.ExitEvent.EXIT
+            event = event or events.AppEvent.EXIT
             assert values
 
             self.events_handler.handle_event(window, event, values)

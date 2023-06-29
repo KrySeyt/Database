@@ -4,9 +4,9 @@ import PySimpleGUI as sg
 
 from app.config import get_settings
 from app.service.storage.dependencies import get_storage_backend
-from app.service import storage
 from . import events
 from . import elements
+from . import service
 
 
 class EventsHandler:
@@ -18,7 +18,7 @@ class EventsHandler:
 
     ) -> None:
 
-        if event is events.ExitEvent.EXIT:
+        if event is events.AppEvent.EXIT:
             self._exit_handler(window, values)
 
         elif event == events.EmployeeEvent.ADD_EMPLOYEE:
@@ -33,29 +33,17 @@ class EventsHandler:
         elif event == events.EmployeeEvent.ADD_EMPLOYEE_FAIL:
             self._add_employee_fail_handler(window, values)
 
+        elif event == events.AppEvent.START:
+            self._startup_handler(window, values)
+
+    @staticmethod
     def _add_employee_handler(
-            self,
             window: sg.Window,
             values: dict[elements.Element, Any],
-            backend: storage.backend.StorageBackend = get_storage_backend(get_settings().BACKEND_LOCATION)
     ) -> None:
 
-        employee = storage.schema.EmployeeIn(
-            name=values[elements.AddEmployeeForm.FIRST_NAME],
-            surname=values[elements.AddEmployeeForm.LAST_NAME],
-            patronymic=values[elements.AddEmployeeForm.PATRONYMIC]
-        )
-
-        @events.raise_status_events(
-            window,
-            events.EmployeeEvent.ADD_EMPLOYEE_SUCCESS,
-            events.EmployeeEvent.ADD_EMPLOYEE_PROCESSING,
-            events.EmployeeEvent.ADD_EMPLOYEE_FAIL
-        )
-        def call_add_employee() -> None:
-            storage.service.add_employee(backend, employee)
-
-        window.perform_long_operation(call_add_employee, end_key=events.Misc.NON_EXISTENT)
+        backend = get_storage_backend(get_settings().backend_location)
+        service.add_employee(window, values, backend)
 
     @staticmethod
     def _add_employee_success_handler(
@@ -63,12 +51,7 @@ class EventsHandler:
             values: dict[elements.Element, Any],
     ) -> None:
 
-        window[elements.AddEmployeeForm.ADD_EMPLOYEE_STATUS].update(
-            value="Success!",
-            text_color="white",
-            background_color="green",
-            visible=True,
-        )
+        service.show_success(window)
 
     @staticmethod
     def _add_employee_fail_handler(
@@ -76,12 +59,7 @@ class EventsHandler:
             values: dict[elements.Element, Any],
     ) -> None:
 
-        window[elements.AddEmployeeForm.ADD_EMPLOYEE_STATUS].update(
-            value="Fail!",
-            text_color="white",
-            background_color="red",
-            visible=True,
-        )
+        service.show_fail(window)
 
     @staticmethod
     def _add_employee_processing_handler(
@@ -89,18 +67,20 @@ class EventsHandler:
             values: dict[elements.Element, Any],
     ) -> None:
 
-        window[elements.AddEmployeeForm.ADD_EMPLOYEE_STATUS].update(
-            value="Processing...",
-            text_color="white",
-            background_color="grey",
-            visible=True,
-        )
+        service.show_processing(window)
 
-    def _exit_handler(
-            self,
+    @staticmethod
+    def _startup_handler(
             window: sg.Window,
             values: dict[elements.Element, Any]
     ) -> None:
 
-        window.close()
-        assert window.is_closed()
+        service.update_db_list(window)
+
+    @staticmethod
+    def _exit_handler(
+            window: sg.Window,
+            values: dict[elements.Element, Any]
+    ) -> None:
+
+        service.close_window(window)
