@@ -2,6 +2,8 @@ from typing import Any
 
 import PySimpleGUI as sg
 
+from app.config import get_settings
+from app.service.storage.dependencies import get_storage_backend
 from app.service import storage
 from . import events
 from . import elements
@@ -35,7 +37,7 @@ class EventsHandler:
             self,
             window: sg.Window,
             values: dict[elements.Element, Any],
-            backend: storage.backend.StorageBackend = storage.dependencies.get_storage_backend()
+            backend: storage.backend.StorageBackend = get_storage_backend(get_settings().BACKEND_LOCATION)
     ) -> None:
 
         employee = storage.schema.EmployeeIn(
