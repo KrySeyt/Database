@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, asc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import schema
@@ -19,7 +19,7 @@ async def get_employee(db: AsyncSession, employee_id: int) -> models.Employee | 
 
 
 async def get_employees(db: AsyncSession, skip: int, limit: int) -> list[models.Employee]:
-    stmt = select(models.Employee).offset(skip).limit(limit)
+    stmt = select(models.Employee).offset(skip).limit(limit).order_by(asc(models.Employee.id))
     return list((await db.scalars(stmt)).all())
 
 
