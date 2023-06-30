@@ -25,7 +25,6 @@ async def create_employee(
 @router.get(
     path="/employee/{employee_id}",
     response_model=schema.EmployeeOut,
-
 )
 async def get_employee(
         employee_id: Annotated[int, Path()],
@@ -54,7 +53,6 @@ async def get_employees(
 @router.put(
     path="/employee",
     response_model=schema.EmployeeOut,
-    status_code=status.HTTP_201_CREATED
 )
 async def update_employee(
         employee_in: schema.EmployeeInWithID,
