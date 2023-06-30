@@ -25,4 +25,3 @@ async def update_employee(db: AsyncSession, employee_in: schema.EmployeeInWithID
     if not db_employee:
         return None
     return schema.Employee.from_orm(db_employee)
-

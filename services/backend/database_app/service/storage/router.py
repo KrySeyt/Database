@@ -43,9 +43,9 @@ async def get_employee(
     response_model=list[schema.EmployeeOut],
 )
 async def get_employees(
-        skip: Annotated[int, Query(default=0)],
-        limit: Annotated[int, Query(default=100)],
         db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)],
+        skip: int = Query(default=0),
+        limit: int = Query(default=100),
 ) -> list[schema.Employee]:
 
     return await service.get_employees(db, skip, limit)
