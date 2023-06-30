@@ -34,3 +34,24 @@ async def update_employee(db: AsyncSession, employee_in: schema.EmployeeInWithID
     await db.commit()
     await db.refresh(db_employee)
     return db_employee
+
+
+async def delete_employee(db: AsyncSession, employee_id: int) -> models.Employee | None:
+    db_employee = await get_employee(db, employee_id)
+    if not db_employee:
+        return None
+
+    await db.delete(db_employee)
+    await db.commit()
+
+    return db_employee
+
+
+async def search_employees(db: AsyncSession, search_model: schema.EmployeeSearchModel) -> list[models.Employee]:
+    search_params = {k: v for k, v in search_model.dict().items() if v is not None}
+
+    stmt = select(models.Employee).where(
+        *[getattr(models.Employee, key) == search_params[key] for key in search_params]
+    )
+    db_employees = list((await db.scalars(stmt)).all())
+    return db_employees

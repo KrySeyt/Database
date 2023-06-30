@@ -25,3 +25,15 @@ async def update_employee(db: AsyncSession, employee_in: schema.EmployeeInWithID
     if not db_employee:
         return None
     return schema.Employee.from_orm(db_employee)
+
+
+async def delete_employee(db: AsyncSession, employee_id: int) -> schema.Employee | None:
+    db_employee = await crud.delete_employee(db, employee_id)
+    if db_employee is None:
+        return None
+    return schema.Employee.from_orm(db_employee)
+
+
+async def search_employees(db: AsyncSession, search_model: schema.EmployeeSearchModel) -> list[schema.Employee]:
+    db_employees = await crud.search_employees(db, search_model)
+    return [schema.Employee.from_orm(i) for i in db_employees]

@@ -23,6 +23,12 @@ class EmployeeOut(EmployeeBase):
     id: int
 
 
+class EmployeeSearchModel(Base):
+    name: str | None = None
+    surname: str | None = None
+    patronymic: str | None = None
+
+
 class Employee(EmployeeBase):
     id: int
 

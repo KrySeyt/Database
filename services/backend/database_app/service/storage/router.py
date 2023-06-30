@@ -24,7 +24,7 @@ async def create_employee(
 
 @router.get(
     path="/employee/{employee_id}",
-    response_model=schema.EmployeeOut,
+    response_model=schema.EmployeeOut
 )
 async def get_employee(
         employee_id: Annotated[int, Path()],
@@ -39,7 +39,7 @@ async def get_employee(
 
 @router.get(
     path="/employees",
-    response_model=list[schema.EmployeeOut],
+    response_model=list[schema.EmployeeOut]
 )
 async def get_employees(
         db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)],
@@ -52,7 +52,7 @@ async def get_employees(
 
 @router.put(
     path="/employee",
-    response_model=schema.EmployeeOut,
+    response_model=schema.EmployeeOut
 )
 async def update_employee(
         employee_in: schema.EmployeeInWithID,
@@ -63,3 +63,30 @@ async def update_employee(
     if not employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return employee
+
+
+@router.delete(
+    path="/employee/{employee_id}",
+    response_model=schema.EmployeeOut
+)
+async def delete_employee(
+        employee_id: Annotated[int, Path()],
+        db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)],
+) -> schema.Employee:
+
+    employee = await service.delete_employee(db, employee_id)
+    if not employee:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return employee
+
+
+@router.post(
+    path="/search/employees",
+    response_model=list[schema.EmployeeOut]
+)
+async def search_employees(
+        search_model: schema.EmployeeSearchModel,
+        db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)]
+) -> list[schema.Employee]:
+
+    return await service.search_employees(db, search_model)
