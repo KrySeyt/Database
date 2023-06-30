@@ -2,6 +2,7 @@ from typing import Any, Self
 
 import PySimpleGUI as sg
 
+from .keys import Key
 from . import events
 from . import elements
 
@@ -25,7 +26,7 @@ class HierarchicalWindow(sg.Window):  # type: ignore
     def read_all_windows(cls) -> tuple[
         Self | None,
         events.Event | None,
-        dict[elements.Element | events.Event, Any] | None
+        dict[Key, Any] | None
     ]:
         window, event, values = sg.read_all_windows()
         assert isinstance(window, cls) or window is None

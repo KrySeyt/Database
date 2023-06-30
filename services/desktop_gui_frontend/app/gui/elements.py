@@ -13,6 +13,7 @@ class EmployeeList(Element):
 
 
 class EmployeeForm(Element):
+    ID = "-EMPLOYEE-ID-"
     NAME = "-EMPLOYEE-NAME-"
     SURNAME = "-EMPLOYEE-SURNAME-"
     PATRONYMIC = "-EMPLOYEE-PATRONYMIC-"

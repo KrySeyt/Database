@@ -3,13 +3,14 @@ from typing import Any
 import PySimpleGUI as sg
 
 from app.service import storage
+from .keys import Key
 from . import events
 from . import elements
 
 
 def add_employee(
         window: sg.Window,
-        values: dict[elements.Element | events.Event, Any],
+        values: dict[Key, Any],
         backend: storage.backend.StorageBackend
 ) -> None:
 
@@ -25,30 +26,114 @@ def add_employee(
         events.EmployeeEvent.ADD_EMPLOYEE_PROCESSING,
         events.EmployeeEvent.ADD_EMPLOYEE_FAIL
     )
-    def call_add_employee() -> None:
-        storage.service.add_employee(employee, backend)
+    def call_add_employee() -> storage.schema.Employee:
+        return storage.service.add_employee(employee, backend)
 
     window.perform_long_operation(call_add_employee, end_key=events.Misc.NON_EXISTENT)
 
 
+def update_employee(
+        window: sg.Window,
+        values: dict[Key, Any],
+        backend: storage.backend.StorageBackend
+) -> None:
+
+    if not values[events.EmployeeEvent.EMPLOYEE_SELECTED]:
+        return
+
+    employee_id_in_list = values[events.EmployeeEvent.EMPLOYEE_SELECTED][-1]
+    employee_id = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()[employee_id_in_list][0]
+
+    employee = storage.schema.EmployeeInWithID(
+        id=employee_id,
+        name=values[elements.EmployeeForm.NAME],
+        surname=values[elements.EmployeeForm.SURNAME],
+        patronymic=values[elements.EmployeeForm.PATRONYMIC]
+    )
+
+    @events.raise_status_events(
+        window,
+        events.EmployeeEvent.UPDATE_EMPLOYEE_SUCCESS,
+        events.EmployeeEvent.UPDATE_EMPLOYEE_PROCESSING,
+        events.EmployeeEvent.UPDATE_EMPLOYEE_FAIL
+    )
+    def call_update_employee() -> storage.schema.Employee:
+        return storage.service.update_employee(employee, backend)
+
+    window.perform_long_operation(call_update_employee, end_key=events.Misc.NON_EXISTENT)
+
+
+def delete_employees(
+        window: sg.Window,
+        values: dict[Key, Any],
+        backend: storage.backend.StorageBackend
+) -> None:
+
+    selected_employees_ids_in_list = values[events.EmployeeEvent.EMPLOYEE_SELECTED]
+    all_employees_in_list = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()
+    selected_employees_ids = [int(all_employees_in_list[i][0]) for i in selected_employees_ids_in_list]
+
+    @events.raise_status_events(
+        window,
+        events.EmployeeEvent.DELETE_EMPLOYEES_SUCCESS,
+        events.EmployeeEvent.DELETE_EMPLOYEES_PROCESSING,
+        events.EmployeeEvent.DELETE_EMPLOYEES_FAIL
+    )
+    def call_delete_employees() -> list[storage.schema.Employee]:
+        return storage.service.delete_employees(selected_employees_ids, backend)
+
+    window.perform_long_operation(call_delete_employees, end_key=events.Misc.NON_EXISTENT)
+
+
+def search_employees(
+        window: sg.Window,
+        values: dict[Key, Any],
+) -> None:
+
+    search_attrs_as_entry = [
+        values[elements.EmployeeForm.NAME] or None,
+        values[elements.EmployeeForm.SURNAME] or None,
+        values[elements.EmployeeForm.PATRONYMIC] or None
+    ]
+
+    if not any(search_attrs_as_entry):
+        return
+
+    employees_entries = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()
+
+    matched_entries_numbers = []
+    for entry_number, entry in enumerate(employees_entries):
+        for i, employee_attr in enumerate(entry[1:]):  # Skip employee ID
+            if employee_attr == search_attrs_as_entry[i]:
+                matched_entries_numbers.append(entry_number)
+                continue
+
+    window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(select_rows=matched_entries_numbers)
+
+
 def update_db_list(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
     employees = storage.service.get_employees(0, 100, backend)
-    window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(values=[list(i.dict().values()) for i in employees])
+
+    table_rows = []
+    for emp in employees:
+        table_rows.append([emp.id, emp.name, emp.surname, emp.patronymic])
+
+    window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(values=table_rows)
 
 
 def insert_selected_employee_to_form(
         window: sg.Window,
-        values: dict[elements.Element | events.Event, Any]
+        values: dict[Key, Any]
 ) -> None:
 
     assert values[events.EmployeeEvent.EMPLOYEE_SELECTED]
 
-    employee_entry_id = values[events.EmployeeEvent.EMPLOYEE_SELECTED][-1]
-    employee_entry = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()[employee_entry_id]
+    employee_id_in_list = values[events.EmployeeEvent.EMPLOYEE_SELECTED][-1]
+    employee_entry_in_list = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()[employee_id_in_list]
 
-    window[elements.EmployeeForm.NAME].update(value=employee_entry[0])
-    window[elements.EmployeeForm.SURNAME].update(value=employee_entry[1])
-    window[elements.EmployeeForm.PATRONYMIC].update(value=employee_entry[2])
+    window[elements.EmployeeForm.NAME].update(value=employee_entry_in_list[1])
+    window[elements.EmployeeForm.SURNAME].update(value=employee_entry_in_list[2])
+    window[elements.EmployeeForm.PATRONYMIC].update(value=employee_entry_in_list[3])
 
 
 def show_success(window: sg.Window) -> None:

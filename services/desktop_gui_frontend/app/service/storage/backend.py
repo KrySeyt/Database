@@ -17,10 +17,7 @@ class StorageBackend:
         try:
             response = requests.post(
                 url=endpoint_url,
-                json={
-                    **employee.dict(),
-                    "test": "any-text",
-                      },
+                json=employee.dict(),
             )
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err
@@ -37,6 +34,48 @@ class StorageBackend:
 
         try:
             response = requests.get(url=endpoint_url, params=params)
+        except requests.exceptions.ConnectionError as err:
+            raise BackendConnectionError from err
+
+        employees = [schema.Employee.parse_obj(i) for i in response.json()]
+        return employees
+
+    def update_employee(self, employee: schema.EmployeeInWithID) -> schema.Employee:
+        endpoint_url = rf"{self.backend_url}/employee"
+
+        try:
+            response = requests.put(
+                url=endpoint_url,
+                json=employee.dict(),
+            )
+        except requests.exceptions.ConnectionError as err:
+            raise BackendConnectionError from err
+
+        return schema.Employee.parse_obj(response.json())
+
+    def delete_employees(self, employees_ids: list[int]) -> list[schema.Employee]:
+        endpoint_url = rf"{self.backend_url}/employee"
+
+        try:
+            employees = []
+            for id_ in employees_ids:
+                response = requests.delete(url=rf"{endpoint_url}/{id_}",)
+                employee = schema.Employee.parse_obj(response.json())
+                employees.append(employee)
+
+            return employees
+
+        except requests.exceptions.ConnectionError as err:
+            raise BackendConnectionError from err
+
+    def search_employees(self, employee_search_model: schema.EmployeeSearchModel) -> list[schema.Employee]:
+        endpoint_url = rf"{self.backend_url}/search/employees"
+
+        try:
+            response = requests.post(
+                endpoint_url,
+                json=employee_search_model.dict()
+            )
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err
 
