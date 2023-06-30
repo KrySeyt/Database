@@ -22,7 +22,11 @@ class HierarchicalWindow(sg.Window):  # type: ignore
 
     # In return type annotation, Pycharm says AppWindow doesn't exist, but mypy --strict says all ok
     @classmethod
-    def read_all_windows(cls) -> tuple[Self | None, events.Event | None, dict[elements.Element, Any] | None]:
+    def read_all_windows(cls) -> tuple[
+        Self | None,
+        events.Event | None,
+        dict[elements.Element | events.Event, Any] | None
+    ]:
         window, event, values = sg.read_all_windows()
         assert isinstance(window, cls) or window is None
         return window, event, values

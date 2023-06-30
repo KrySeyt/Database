@@ -1,3 +1,6 @@
+#  Keys for elements that not raises events. If elements raises event - set event as key
+
+
 from enum import Enum
 
 
@@ -6,11 +9,11 @@ class Element(str, Enum):
 
 
 class EmployeeList(Element):
-    TABLE = "-TABLE-"
+    PAGE = "-EMPLOYEE-LIST-PAGE"
 
 
 class EmployeeForm(Element):
-    FIRST_NAME = "-EMPLOYEE-FIRST-NAME-"
-    LAST_NAME = "-EMPLOYEE-LAST-NAME-"
+    NAME = "-EMPLOYEE-NAME-"
+    SURNAME = "-EMPLOYEE-SURNAME-"
     PATRONYMIC = "-EMPLOYEE-PATRONYMIC-"
     ADD_EMPLOYEE_STATUS = "-ADD-EMPLOYEE-STATUS-"

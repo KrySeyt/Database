@@ -7,37 +7,15 @@ from . import events
 from . import elements
 
 
-def update_db_list(window: sg.Window) -> None:
-    employees = [
-        {
-            "name": "NameFirst",
-            "surname": "Surname1",
-            "patronymic": "patronymic1",
-        },
-        {
-            "name": "NameSecond",
-            "surname": "Surname2",
-            "patronymic": "patronymic2",
-        },
-        {
-            "name": "NameThird",
-            "surname": "Surname3",
-            "patronymic": "patronymic3",
-        }
-    ]
-
-    window[elements.EmployeeList.TABLE].update(values=[list(i.values()) for i in employees])
-
-
 def add_employee(
         window: sg.Window,
-        values: dict[elements.Element, Any],
+        values: dict[elements.Element | events.Event, Any],
         backend: storage.backend.StorageBackend
 ) -> None:
 
     employee = storage.schema.EmployeeIn(
-        name=values[elements.EmployeeForm.FIRST_NAME],
-        surname=values[elements.EmployeeForm.LAST_NAME],
+        name=values[elements.EmployeeForm.NAME],
+        surname=values[elements.EmployeeForm.SURNAME],
         patronymic=values[elements.EmployeeForm.PATRONYMIC]
     )
 
@@ -48,9 +26,29 @@ def add_employee(
         events.EmployeeEvent.ADD_EMPLOYEE_FAIL
     )
     def call_add_employee() -> None:
-        storage.service.add_employee(backend, employee)
+        storage.service.add_employee(employee, backend)
 
     window.perform_long_operation(call_add_employee, end_key=events.Misc.NON_EXISTENT)
+
+
+def update_db_list(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
+    employees = storage.service.get_employees(0, 100, backend)
+    window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(values=[list(i.dict().values()) for i in employees])
+
+
+def insert_selected_employee_to_form(
+        window: sg.Window,
+        values: dict[elements.Element | events.Event, Any]
+) -> None:
+
+    assert values[events.EmployeeEvent.EMPLOYEE_SELECTED]
+
+    employee_entry_id = values[events.EmployeeEvent.EMPLOYEE_SELECTED][-1]
+    employee_entry = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()[employee_entry_id]
+
+    window[elements.EmployeeForm.NAME].update(value=employee_entry[0])
+    window[elements.EmployeeForm.SURNAME].update(value=employee_entry[1])
+    window[elements.EmployeeForm.PATRONYMIC].update(value=employee_entry[2])
 
 
 def show_success(window: sg.Window) -> None:

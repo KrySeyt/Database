@@ -1,6 +1,7 @@
 FROM python:3.11.4-slim-bullseye
-RUN apt-get update && \
-    rm -rf /var/lib/apt
+RUN apt-get update
+RUN apt-get install -y curl 
+RUN rm -rf /var/lib/apt
 
 ENV WORKDIR=/backend
 

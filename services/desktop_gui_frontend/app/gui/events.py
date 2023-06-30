@@ -1,3 +1,5 @@
+# Events. Set them as keys for elements that raises events or raise directly
+
 from enum import Enum
 from typing import Callable, TypeVar
 
@@ -13,6 +15,7 @@ class Misc(Event):
 
 
 class EmployeeEvent(str, Event):
+    EMPLOYEE_SELECTED = "-EMPLOYEE-SELECTED-"
     ADD_EMPLOYEE = "-ADD-EMPLOYEE-"
     ADD_EMPLOYEE_SUCCESS = "-ADD-EMPLOYEE-SUCCESS-"
     ADD_EMPLOYEE_PROCESSING = "-ADD-EMPLOYEE-PROCESSING"

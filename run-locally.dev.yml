@@ -3,26 +3,26 @@ version: "3.8"
 services:
   backend:
     extends:
-      file: services/backend/docker-compose.prod.yml
+      file: services/backend/docker-compose.dev.yml
       service: backend
     networks:
       - network
     healthcheck:
       test: ["CMD", "curl", "http://localhost:8000"]
       interval: 3s
-      timeout: 3s
+      timeout: 1s
       retries: 10
 
   postgres:
     extends:
-      file: services/backend/docker-compose.prod.yml
+      file: services/backend/docker-compose.dev.yml
       service: postgres
     networks:
       - network
 
   desktop_gui_frontend:
     extends:
-      file: services/desktop_gui_frontend/docker-compose.prod.yml
+      file: services/desktop_gui_frontend/docker-compose.dev.yml
       service: desktop_gui_frontend
     networks:
       - network
@@ -31,6 +31,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    entrypoint: python main.py
 
 
 networks:

@@ -42,6 +42,8 @@ class GUI:
             event = event or events.AppEvent.EXIT
             assert values
 
+            window[events.EmployeeEvent.EMPLOYEE_SELECTED].update()
+
             if __debug__:
                 print(window, event, values)
 
