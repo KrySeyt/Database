@@ -13,7 +13,7 @@ from .errors_handlers import wrong_data_exception_handler
 def show_wrong_employee_data(window: sg.Window, error: storage.backend.WrongData) -> None:
     element_keys = []
     for err in error.errors:
-        key = f"-EMPLOYEE-{'-'.join(err.loc[1:])}-".upper()
+        key = f"-EMPLOYEE-{'-'.join(err.loc[1:])}-".upper().replace("_", "-")
         element_keys.append(key)
 
     for key in element_keys:

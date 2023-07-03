@@ -3,6 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database_app.service.storage import schema, crud
 
 
+async def is_service_number_occupied(db: AsyncSession, service_number: int) -> bool:
+    return await crud.is_service_number_occupied(db, service_number)
+
+
 async def create_employee(db: AsyncSession, employee_in: schema.EmployeeIn) -> schema.Employee:
     db_employee = await crud.create_employee(db, employee_in)
     return schema.Employee.from_orm(db_employee)

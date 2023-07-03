@@ -18,7 +18,23 @@ async def create_employee(
         employee: schema.EmployeeIn,
         db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)],
 ) -> schema.Employee:
-
+    if await service.is_service_number_occupied(db, employee.service_number):
+        raise HTTPException(
+            422,
+            detail=[
+                {
+                    "loc": [
+                        "body",
+                        "service_number"
+                    ],
+                    "msg": "Employee service number already occupied",
+                    "type": "value_error"
+                }
+            ],
+            headers={
+                "content-type": "application/json"
+            }
+        )
     return await service.create_employee(db, employee)
 
 
@@ -30,7 +46,6 @@ async def get_employee(
         employee_id: Annotated[int, Path()],
         db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)],
 ) -> schema.Employee:
-
     employee = await service.get_employee(db, employee_id)
     if not employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -46,7 +61,6 @@ async def get_employees(
         skip: int = Query(default=0),
         limit: int = Query(default=100),
 ) -> list[schema.Employee]:
-
     return await service.get_employees(db, skip, limit)
 
 
@@ -58,7 +72,6 @@ async def update_employee(
         employee_in: schema.EmployeeInWithID,
         db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)],
 ) -> schema.Employee:
-
     employee = await service.update_employee(db, employee_in)
     if not employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -73,7 +86,6 @@ async def delete_employee(
         employee_id: Annotated[int, Path()],
         db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)],
 ) -> schema.Employee:
-
     employee = await service.delete_employee(db, employee_id)
     if not employee:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
@@ -88,5 +100,4 @@ async def search_employees(
         search_model: schema.EmployeeSearchModel,
         db: Annotated[AsyncSession, Depends(dependencies.get_db_stub)]
 ) -> list[schema.Employee]:
-
     return await service.search_employees(db, search_model)

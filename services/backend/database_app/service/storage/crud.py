@@ -7,6 +7,11 @@ from . import schema
 from . import models
 
 
+async def is_service_number_occupied(db: AsyncSession, service_number: int) -> bool:
+    stmt = select(models.Employee).where(models.Employee.service_number == service_number)
+    return bool((await db.execute(stmt)).first())
+
+
 async def get_topic_by_name_and_number(db: AsyncSession, topic_name: str, topic_number: int) -> models.Topic | None:
     db_topic = await db.execute(select(models.Topic).where(
         models.Topic.name == topic_name,
