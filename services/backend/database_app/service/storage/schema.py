@@ -1,7 +1,7 @@
 import datetime
 import decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class Base(BaseModel):
@@ -9,8 +9,12 @@ class Base(BaseModel):
 
 
 class TopicBase(Base):
-    name: str
-    number: int
+    name: str = Field(min_length=5, max_length=500)
+    number: int = Field(ge=0)
+
+    @validator("name")
+    def name_capitalize(cls, name: str) -> str:
+        return name.capitalize()
 
 
 class TopicIn(TopicBase):
@@ -29,8 +33,12 @@ class TopicOut(TopicBase):
 
 
 class PostBase(Base):
-    name: str
-    code: int
+    name: str = Field(min_length=3, max_length=200)
+    code: int = Field(ge=0)
+
+    @validator("name")
+    def name_capitalize(cls, name: str) -> str:
+        return name.capitalize()
 
 
 class PostIn(PostBase):
@@ -49,7 +57,11 @@ class PostOut(PostBase):
 
 
 class TitleBase(Base):
-    name: str
+    name: str = Field(min_length=2, max_length=200)
+
+    @validator("name")
+    def name_capitalize(cls, name: str) -> str:
+        return name.capitalize()
 
 
 class TitleIn(TitleBase):
@@ -68,7 +80,17 @@ class TitleOut(TitleBase):
 
 
 class CurrencyBase(Base):
-    name: str = Field(example="RUB")
+    name: str = Field(min_length=3, max_length=3, example="RUB")
+
+    @validator("name")
+    def name_uppercase(cls, name: str) -> str:
+        return name.upper()
+
+    @validator("name")
+    def name_is_alpha(cls, name: str) -> str:
+        if not name.isalpha():
+            raise ValueError("Name should be alphabetic")
+        return name
 
 
 class CurrencyIn(CurrencyBase):
@@ -87,16 +109,28 @@ class CurrencyOut(CurrencyBase):
 
 
 class SalaryBase(Base):
-    amount: decimal.Decimal
+    amount: decimal.Decimal = Field(gt=0)
+
+    @validator("amount")
+    def salary_is_normal(cls, amount: decimal.Decimal) -> decimal.Decimal:
+        amount.is_normal()
+        return amount
+
+    @validator("amount")
+    def salary_has_correct_scale(cls, amount: decimal.Decimal) -> decimal.Decimal:
+        amount.is_normal()
+        if len(str(amount % 1)) > 2:
+            raise ValueError("Salary amount has too much scale. Max scale is 2")
+        return amount
 
 
 class SalaryIn(SalaryBase):
-    currency: "CurrencyIn"
+    currency: CurrencyIn
 
 
 class Salary(SalaryBase):
     id: int
-    currency: "Currency"
+    currency: Currency
 
     class Config:
         orm_mode = True
@@ -108,12 +142,60 @@ class SalaryOut(SalaryBase):
 
 
 class EmployeeBase(Base):
-    name: str
-    surname: str
-    patronymic: str
-    department_number: int
-    service_number: int
+    name: str = Field(max_length=100, min_length=1)
+    surname: str = Field(max_length=100, min_length=1)
+    patronymic: str = Field(max_length=100, min_length=1)
+    department_number: int = Field(ge=0)
+    service_number: int = Field(ge=0)
     employment_date: datetime.date
+
+    @validator("name", pre=True)
+    def name_capitalize(cls, name: str) -> str:
+        return name.capitalize()
+
+    @validator("name")
+    def name_is_alpha(cls, name: str) -> str:
+        if not name.isalpha():
+            raise ValueError("Name should be alphabetic")
+        return name
+
+    @validator("surname", pre=True)
+    def surname_capitalize(cls, surname: str) -> str:
+        return surname.capitalize()
+
+    @validator("surname")
+    def surname_is_alpha(cls, surname: str) -> str:
+        if not surname.isalpha():
+            raise ValueError("Surname should be alphabetic")
+        return surname
+
+    @validator("patronymic", pre=True)
+    def patronymic_capitalize(cls, patronymic: str) -> str:
+        return patronymic.capitalize()
+
+    @validator("surname")
+    def patronymic_is_alpha(cls, patronymic: str) -> str:
+        if not patronymic.isalpha():
+            raise ValueError("Patronymic should be alphabetic")
+        return patronymic
+
+    @validator("employment_date")
+    def employment_date_not_greater_than_today(cls, employment_date: datetime.date) -> datetime.date:
+        now_utc = datetime.datetime.utcnow()
+        max_timezone_shift = 14
+        max_possible_time = now_utc + datetime.timedelta(hours=max_timezone_shift)
+        max_possible_day = max_possible_time.date()
+
+        if employment_date > max_possible_day:
+            raise ValueError("Employment date greater than now")
+
+        return employment_date
+
+    @validator("employment_date")
+    def employment_date_not_to_small(cls, employment_date: datetime.date) -> datetime.date:
+        if employment_date < datetime.date(year=1920, day=1, month=1):
+            raise ValueError("Employment date is too small. Min employment date is 1920-01-01")
+        return employment_date
 
 
 class EmployeeIn(EmployeeBase):
