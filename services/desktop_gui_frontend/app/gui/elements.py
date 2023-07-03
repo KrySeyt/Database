@@ -1,6 +1,5 @@
 #  Keys for elements that not raises events. If elements raises event - set event as key
 
-
 from enum import Enum
 
 
@@ -8,13 +7,25 @@ class Element(str, Enum):
     pass
 
 
-class EmployeeList(Element):
-    PAGE = "-EMPLOYEE-LIST-PAGE"
+class Misc(Element):
+    OPERATION_STATUS_FIELD = "-OPERATION-STATUS-FIELD"
 
 
 class EmployeeForm(Element):
-    ID = "-EMPLOYEE-ID-"
     NAME = "-EMPLOYEE-NAME-"
     SURNAME = "-EMPLOYEE-SURNAME-"
     PATRONYMIC = "-EMPLOYEE-PATRONYMIC-"
-    ADD_EMPLOYEE_STATUS = "-ADD-EMPLOYEE-STATUS-"
+
+    DEPARTMENT_NUMBER = "-EMPLOYEE-DEPARTMENT-NUMBER-"
+    SERVICE_NUMBER = "-EMPLOYEE-SERVICE-NUMBER-"
+    EMPLOYMENT_DATE = "-EMPLOYEE-EMPLOYMENT-DATE-"
+    TITLES = "-EMPLOYEE-TITLES-"
+
+    TOPIC_NUMBER = "-EMPLOYEE-TOPIC-NUMBER"
+    TOPIC_NAME = "-EMPLOYEE-TOPIC-NAME-"
+
+    POST_CODE = "-EMPLOYEE-POST-CODE-"
+    POST_NAME = "-EMPLOYEE-POST-NAME-"
+
+    SALARY_AMOUNT = "-EMPLOYEE-SALARY-AMOUNT-"
+    SALARY_CURRENCY = "-EMPLOYEE-SALARY-CURRENCY-"

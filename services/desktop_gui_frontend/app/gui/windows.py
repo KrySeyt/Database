@@ -4,7 +4,6 @@ import PySimpleGUI as sg
 
 from .keys import Key
 from . import events
-from . import elements
 
 
 # Mypy see sg.Window as Any, but this is not the case

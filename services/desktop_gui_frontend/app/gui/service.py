@@ -6,6 +6,7 @@ from app.service import storage
 from .keys import Key
 from . import events
 from . import elements
+from . import user_input
 
 
 def add_employee(
@@ -14,11 +15,7 @@ def add_employee(
         backend: storage.backend.StorageBackend
 ) -> None:
 
-    employee = storage.schema.EmployeeIn(
-        name=values[elements.EmployeeForm.NAME],
-        surname=values[elements.EmployeeForm.SURNAME],
-        patronymic=values[elements.EmployeeForm.PATRONYMIC]
-    )
+    employee = user_input.Employee.get_employee(values)
 
     @events.raise_status_events(
         window,
@@ -43,12 +40,11 @@ def update_employee(
 
     employee_id_in_list = values[events.EmployeeEvent.EMPLOYEE_SELECTED][-1]
     employee_id = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()[employee_id_in_list][0]
+    employee = user_input.Employee.get_employee(values)
 
-    employee = storage.schema.EmployeeInWithID(
-        id=employee_id,
-        name=values[elements.EmployeeForm.NAME],
-        surname=values[elements.EmployeeForm.SURNAME],
-        patronymic=values[elements.EmployeeForm.PATRONYMIC]
+    employee_with_id = storage.schema.EmployeeInWithID(
+        **employee.dict(),
+        id=employee_id
     )
 
     @events.raise_status_events(
@@ -58,7 +54,7 @@ def update_employee(
         events.EmployeeEvent.UPDATE_EMPLOYEE_FAIL
     )
     def call_update_employee() -> storage.schema.Employee:
-        return storage.service.update_employee(employee, backend)
+        return storage.service.update_employee(employee_with_id, backend)
 
     window.perform_long_operation(call_update_employee, end_key=events.Misc.NON_EXISTENT)
 
@@ -113,10 +109,17 @@ def search_employees(
 
 def update_db_list(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
     employees = storage.service.get_employees(0, 100, backend)
+    employees_out = [storage.schema.EmployeeOut(**i.dict()) for i in employees]
 
     table_rows = []
-    for emp in employees:
-        table_rows.append([emp.id, emp.name, emp.surname, emp.patronymic])
+    for emp in employees_out:
+        table_rows.append(
+            [
+                emp.id, emp.name, emp.surname, emp.patronymic, emp.service_number, emp.department_number,
+                str(emp.employment_date), emp.topic.number, emp.topic.name, emp.post.code, emp.post.name,
+                emp.salary.amount, emp.salary.currency, ", ".join([title.name for title in emp.titles])
+            ]
+        )
 
     window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(values=table_rows)
 
@@ -137,7 +140,7 @@ def insert_selected_employee_to_form(
 
 
 def show_success(window: sg.Window) -> None:
-    window[elements.EmployeeForm.ADD_EMPLOYEE_STATUS].update(
+    window[elements.Misc.OPERATION_STATUS_FIELD].update(
         value="Success!",
         text_color="white",
         background_color="green",
@@ -146,7 +149,7 @@ def show_success(window: sg.Window) -> None:
 
 
 def show_fail(window: sg.Window) -> None:
-    window[elements.EmployeeForm.ADD_EMPLOYEE_STATUS].update(
+    window[elements.Misc.OPERATION_STATUS_FIELD].update(
         value="Fail!",
         text_color="white",
         background_color="red",
@@ -155,7 +158,7 @@ def show_fail(window: sg.Window) -> None:
 
 
 def show_processing(window: sg.Window) -> None:
-    window[elements.EmployeeForm.ADD_EMPLOYEE_STATUS].update(
+    window[elements.Misc.OPERATION_STATUS_FIELD].update(
         value="Processing...",
         text_color="white",
         background_color="grey",

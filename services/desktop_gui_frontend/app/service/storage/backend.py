@@ -17,10 +17,13 @@ class StorageBackend:
         try:
             response = requests.post(
                 url=endpoint_url,
-                json=employee.dict(),
+                data=employee.json(),
             )
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err
+
+        if __debug__:
+            print(response.json())
 
         return schema.Employee.parse_obj(response.json())
 
@@ -37,6 +40,9 @@ class StorageBackend:
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err
 
+        if __debug__:
+            print(response.json())
+
         employees = [schema.Employee.parse_obj(i) for i in response.json()]
         return employees
 
@@ -51,6 +57,9 @@ class StorageBackend:
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err
 
+        if __debug__:
+            print(response.json())
+
         return schema.Employee.parse_obj(response.json())
 
     def delete_employees(self, employees_ids: list[int]) -> list[schema.Employee]:
@@ -60,6 +69,10 @@ class StorageBackend:
             employees = []
             for id_ in employees_ids:
                 response = requests.delete(url=rf"{endpoint_url}/{id_}",)
+
+                if __debug__:
+                    print(response.json())
+
                 employee = schema.Employee.parse_obj(response.json())
                 employees.append(employee)
 
@@ -78,5 +91,8 @@ class StorageBackend:
             )
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err
+
+        if __debug__:
+            print(response.json())
 
         return [schema.Employee.parse_obj(i) for i in response.json()]

@@ -28,8 +28,9 @@ class GUI:
             "Database",
             self.main_window_layout,
             location=(200, 200),
+            size=(1000, 800),
             finalize=True,
-            resizable=True,
+            resizable=True
         )
         return main_window
 
