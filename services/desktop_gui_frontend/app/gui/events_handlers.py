@@ -22,6 +22,15 @@ class EventsHandler:
             case events.EmployeeEvent.EMPLOYEE_SELECTED:
                 self._employee_entry_selected(window, values)
 
+            case events.EmployeeEvent.GET_EMPLOYEES_SUCCESS:
+                self._get_employees_success_handler(window, values)
+
+            case events.EmployeeEvent.GET_EMPLOYEES_PROCESSING:
+                self._get_employees_processing_handler(window, values)
+
+            case events.EmployeeEvent.GET_EMPLOYEES_FAIL:
+                self._get_employees_fail_handler(window, values)
+
             case events.EmployeeEvent.ADD_EMPLOYEE:
                 self._add_employee_handler(window, values)
 
@@ -68,10 +77,37 @@ class EventsHandler:
                 self._exit_handler(window, values)
 
     @staticmethod
+    def _get_employees_success_handler(
+            window: sg.Window,
+            values: dict[Key, Any]
+    ) -> None:
+
+        service.show_employees(window, values)
+        service.show_success(window)
+
+    @staticmethod
+    def _get_employees_fail_handler(
+            window: sg.Window,
+            values: dict[Key, Any]
+    ) -> None:
+
+        service.show_fail(window)
+
+    @staticmethod
+    def _get_employees_processing_handler(
+            window: sg.Window,
+            values: dict[Key, Any]
+    ) -> None:
+
+        service.show_processing(window)
+
+    @staticmethod
     def _add_employee_handler(
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
+
+        service.clear_wrong_employee_data(window)
 
         backend = get_storage_backend(get_settings().backend_location)
         service.add_employee(window, values, backend)
@@ -84,7 +120,7 @@ class EventsHandler:
 
         service.show_success(window)
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_db_list(window, backend)
+        service.update_employees(window, backend)
 
     @staticmethod
     def _add_employee_fail_handler(
@@ -108,6 +144,8 @@ class EventsHandler:
             values: dict[Key, Any]
     ) -> None:
 
+        service.clear_wrong_employee_data(window)
+
         backend = get_storage_backend(get_settings().backend_location)
         service.update_employee(window, values, backend)
 
@@ -119,7 +157,7 @@ class EventsHandler:
 
         service.show_success(window)
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_db_list(window, backend)
+        service.update_employees(window, backend)
 
     @staticmethod
     def _update_employee_processing_handler(
@@ -154,7 +192,7 @@ class EventsHandler:
 
         service.show_success(window)
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_db_list(window, backend)
+        service.update_employees(window, backend)
 
     @staticmethod
     def _delete_employees_processing_handler(
@@ -187,7 +225,7 @@ class EventsHandler:
     ) -> None:
 
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_db_list(window, backend)
+        service.update_employees(window, backend)
 
     @staticmethod
     def _employee_entry_selected(

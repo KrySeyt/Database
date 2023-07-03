@@ -17,6 +17,11 @@ class Misc(Event):
 class EmployeeEvent(str, Event):
     EMPLOYEE_SELECTED = "-EMPLOYEE-SELECTED-"
 
+    GET_EMPLOYEES = "-GET-EMPLOYEES-"
+    GET_EMPLOYEES_SUCCESS = "-GET-EMPLOYEES-SUCCESS-"
+    GET_EMPLOYEES_PROCESSING = "-GET-EMPLOYEES-PROCESSING"
+    GET_EMPLOYEES_FAIL = "-GET-EMPLOYEES-FAIL-"
+
     ADD_EMPLOYEE = "-ADD-EMPLOYEE-"
     ADD_EMPLOYEE_SUCCESS = "-ADD-EMPLOYEE-SUCCESS-"
     ADD_EMPLOYEE_PROCESSING = "-ADD-EMPLOYEE-PROCESSING"
@@ -44,7 +49,7 @@ AT = TypeVar("AT")
 RT = TypeVar("RT")
 
 
-# On success return function result in values with event as key, like sg.Window.perform_long_operation
+# On success return function result in values with success event as key, like sg.Window.perform_long_operation
 def raise_status_events(
         window: sg.Window,
         success_event: Event,

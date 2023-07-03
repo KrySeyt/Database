@@ -6,7 +6,7 @@ from .events import EmployeeEvent, AppEvent
 
 MAIN_WINDOW_LAYOUT = [
     [sg.Table(
-        headings=["ID", "Name", "Surname", "Patronymic" "Service number", "Department number", "Employment date",
+        headings=["ID", "Name", "Surname", "Patronymic", "Service number", "Department number", "Employment date",
                   "Topic number", "Topic name", "Post code", "Post name", "Salary amount", "Salary currency", "Titles"],
         values=[], key=EmployeeEvent.EMPLOYEE_SELECTED,
         auto_size_columns=False, max_col_width=1000, def_col_width=15, vertical_scroll_only=False,

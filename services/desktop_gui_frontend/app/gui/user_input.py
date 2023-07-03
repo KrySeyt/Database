@@ -48,4 +48,4 @@ class Employee:
 
     @classmethod
     def get_titles(cls, values: dict[Key, Any]) -> list[storage.schema.TitleIn]:
-        return [storage.schema.TitleIn(name=title_name) for title_name in values[EmployeeForm.TITLES]]
+        return [storage.schema.TitleIn(name=title_name) for title_name in values[EmployeeForm.TITLES].split(", ")]

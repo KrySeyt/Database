@@ -1,6 +1,6 @@
 import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Base(BaseModel):
@@ -133,3 +133,9 @@ class EmployeeSearchModel(Base):
     name: str | None = None
     surname: str | None = None
     patronymic: str | None = None
+
+
+class BackendWrongDataInfo(Base):
+    loc: list[str] = Field(min_items=1)
+    msg: str
+    type: str

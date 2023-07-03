@@ -7,6 +7,22 @@ from .keys import Key
 from . import events
 from . import elements
 from . import user_input
+from .errors_handlers import wrong_data_exception_handler
+
+
+def show_wrong_employee_data(window: sg.Window, error: storage.backend.WrongData) -> None:
+    element_keys = []
+    for err in error.errors:
+        key = f"-EMPLOYEE-{'-'.join(err.loc[1:])}-".upper()
+        element_keys.append(key)
+
+    for key in element_keys:
+        window[key].update(background_color="red")
+
+
+def clear_wrong_employee_data(window: sg.Window) -> None:
+    for key in elements.EmployeeForm:
+        window[key].update(background_color="white")
 
 
 def add_employee(
@@ -17,6 +33,11 @@ def add_employee(
 
     employee = user_input.Employee.get_employee(values)
 
+    @wrong_data_exception_handler(
+        storage.backend.WrongData,
+        show_wrong_employee_data,
+        window
+    )
     @events.raise_status_events(
         window,
         events.EmployeeEvent.ADD_EMPLOYEE_SUCCESS,
@@ -47,6 +68,11 @@ def update_employee(
         id=employee_id
     )
 
+    @wrong_data_exception_handler(
+        storage.backend.WrongData,
+        show_wrong_employee_data,
+        window
+    )
     @events.raise_status_events(
         window,
         events.EmployeeEvent.UPDATE_EMPLOYEE_SUCCESS,
@@ -107,8 +133,22 @@ def search_employees(
     window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(select_rows=matched_entries_numbers)
 
 
-def update_db_list(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
-    employees = storage.service.get_employees(0, 100, backend)
+def update_employees(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
+
+    @events.raise_status_events(
+        window,
+        events.EmployeeEvent.GET_EMPLOYEES_SUCCESS,
+        events.EmployeeEvent.GET_EMPLOYEES_PROCESSING,
+        events.EmployeeEvent.GET_EMPLOYEES_FAIL
+    )
+    def call_get_employees() -> list[storage.schema.Employee]:
+        return storage.service.get_employees(0, 100, backend)
+
+    window.perform_long_operation(call_get_employees, end_key=events.Misc.NON_EXISTENT)
+
+
+def show_employees(window: sg.Window, values: dict[Key, Any]) -> None:
+    employees = values[events.EmployeeEvent.GET_EMPLOYEES_SUCCESS]
     employees_out = [storage.schema.EmployeeOut(**i.dict()) for i in employees]
 
     table_rows = []
@@ -117,7 +157,7 @@ def update_db_list(window: sg.Window, backend: storage.backend.StorageBackend) -
             [
                 emp.id, emp.name, emp.surname, emp.patronymic, emp.service_number, emp.department_number,
                 str(emp.employment_date), emp.topic.number, emp.topic.name, emp.post.code, emp.post.name,
-                emp.salary.amount, emp.salary.currency, ", ".join([title.name for title in emp.titles])
+                emp.salary.amount, emp.salary.currency.name, ", ".join([title.name for title in emp.titles])
             ]
         )
 
