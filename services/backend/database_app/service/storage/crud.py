@@ -7,6 +7,11 @@ from . import schema
 from . import models
 
 
+async def is_employee_id_exist(db: AsyncSession, employee_id: int) -> bool:
+    db_employee = await db.get(models.Employee, employee_id)
+    return bool(db_employee)
+
+
 async def is_service_number_occupied(db: AsyncSession, service_number: int) -> bool:
     stmt = select(models.Employee).where(models.Employee.service_number == service_number)
     return bool((await db.execute(stmt)).first())
@@ -122,16 +127,20 @@ async def get_employees(db: AsyncSession, skip: int, limit: int) -> list[models.
     return list((await db.scalars(stmt)).all())
 
 
-async def update_employee(db: AsyncSession, employee_in: schema.EmployeeInWithID) -> models.Employee | None:
-    db_employee = await get_employee(db, employee_in.id)
-    if not db_employee:
-        return None
+async def update_employee(
+        db: AsyncSession,
+        employee_in: schema.EmployeeIn,
+        employee_id: int
+) -> models.Employee | None:
+
+    db_employee = await get_employee(db, employee_id)
 
     for key in employee_in.dict():
         setattr(db_employee, key, getattr(employee_in, key))
 
     await db.commit()
     await db.refresh(db_employee)
+
     return db_employee
 
 

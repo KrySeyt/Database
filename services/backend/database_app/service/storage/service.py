@@ -7,6 +7,10 @@ async def is_service_number_occupied(db: AsyncSession, service_number: int) -> b
     return await crud.is_service_number_occupied(db, service_number)
 
 
+async def is_employee_id_exist(db: AsyncSession, employee_id: int) -> bool:
+    return await crud.is_employee_id_exist(db, employee_id)
+
+
 async def create_employee(db: AsyncSession, employee_in: schema.EmployeeIn) -> schema.Employee:
     db_employee = await crud.create_employee(db, employee_in)
     return schema.Employee.from_orm(db_employee)
@@ -24,10 +28,8 @@ async def get_employees(db: AsyncSession, skip: int, limit: int) -> list[schema.
     return [schema.Employee.from_orm(db_emp) for db_emp in db_employees]
 
 
-async def update_employee(db: AsyncSession, employee_in: schema.EmployeeInWithID) -> schema.Employee | None:
-    db_employee = await crud.update_employee(db, employee_in)
-    if not db_employee:
-        return None
+async def update_employee(db: AsyncSession, employee_in: schema.EmployeeIn, employee_id: int) -> schema.Employee:
+    db_employee = await crud.update_employee(db, employee_in, employee_id)
     return schema.Employee.from_orm(db_employee)
 
 

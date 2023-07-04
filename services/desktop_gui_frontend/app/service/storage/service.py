@@ -16,9 +16,9 @@ def get_employees(skip: int, limit: int, backend: StorageBackend) -> list[schema
         raise
 
 
-def update_employee(employee_in: schema.EmployeeInWithID, backend: StorageBackend) -> schema.Employee:
+def update_employee(employee_in: schema.EmployeeIn, employee_id: int, backend: StorageBackend) -> schema.Employee:
     try:
-        return backend.update_employee(employee_in)
+        return backend.update_employee(employee_in, employee_id)
     except BackendConnectionError:
         raise
 

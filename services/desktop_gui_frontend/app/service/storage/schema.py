@@ -106,10 +106,6 @@ class EmployeeIn(EmployeeBase):
     titles: list[TitleIn]
 
 
-class EmployeeInWithID(EmployeeIn):
-    id: int
-
-
 class Employee(EmployeeBase):
     id: int
     topic: Topic

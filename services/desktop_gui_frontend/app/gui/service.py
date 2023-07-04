@@ -60,13 +60,8 @@ def update_employee(
         return
 
     employee_id_in_list = values[events.EmployeeEvent.EMPLOYEE_SELECTED][-1]
-    employee_id = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()[employee_id_in_list][0]
+    employee_id = int(window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()[employee_id_in_list][0])
     employee = user_input.Employee.get_employee(values)
-
-    employee_with_id = storage.schema.EmployeeInWithID(
-        **employee.dict(),
-        id=employee_id
-    )
 
     @wrong_data_exception_handler(
         storage.backend.WrongData,
@@ -80,7 +75,7 @@ def update_employee(
         events.EmployeeEvent.UPDATE_EMPLOYEE_FAIL
     )
     def call_update_employee() -> storage.schema.Employee:
-        return storage.service.update_employee(employee_with_id, backend)
+        return storage.service.update_employee(employee, employee_id, backend)
 
     window.perform_long_operation(call_update_employee, end_key=events.Misc.NON_EXISTENT)
 

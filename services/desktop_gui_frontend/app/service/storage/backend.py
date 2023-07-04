@@ -78,8 +78,8 @@ class StorageBackend:
         employees = [schema.Employee.parse_obj(i) for i in response.json()]
         return employees
 
-    def update_employee(self, employee: schema.EmployeeInWithID) -> schema.Employee:
-        endpoint_url = rf"{self.backend_url}/employee"
+    def update_employee(self, employee: schema.EmployeeIn, employee_id: int) -> schema.Employee:
+        endpoint_url = rf"{self.backend_url}/employee/{employee_id}"
 
         try:
             response = requests.put(
