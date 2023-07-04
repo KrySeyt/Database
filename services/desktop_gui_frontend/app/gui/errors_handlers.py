@@ -2,15 +2,14 @@ from typing import Callable, TypeVar, Type, Any
 
 import PySimpleGUI as sg
 
-from app.service.storage.backend import WrongData
-
 
 RT = TypeVar("RT")
+EXC_T = TypeVar("EXC_T", bound=Exception)
 
 
 def wrong_data_exception_handler(
-        catching_exception: Type[WrongData],
-        callback: Callable[[sg.Window, WrongData], None],
+        catching_exception: Type[EXC_T],
+        callback: Callable[[sg.Window, EXC_T], None],
         window: sg.Window
 ) -> Callable[
     [Callable[..., RT]],

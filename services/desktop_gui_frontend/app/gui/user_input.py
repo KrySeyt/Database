@@ -1,11 +1,17 @@
 from typing import Any
 
+import PySimpleGUI as sg
+from pydantic import ValidationError
+
 from .keys import Key
 from .elements import EmployeeForm
 from app.service import storage
 
 
 class Employee:
+    def __init__(self, window: sg.Window) -> None:
+        self.window = window
+
     @classmethod
     def get_employee(cls, values: dict[Key, Any]) -> storage.schema.EmployeeIn:
         return storage.schema.EmployeeIn(

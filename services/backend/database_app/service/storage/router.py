@@ -5,9 +5,13 @@ from fastapi import APIRouter, Depends, Path, HTTPException, status, Query
 
 from database_app.service.storage import schema, service
 from ...dependencies import get_db_stub
-from .dependencies import employee_service_number_unique, employee_id_exist
+from .dependencies import employee_service_number_unique
+from . import exceptions
 
 router = APIRouter()
+
+
+# TODO: Create responses docs
 
 
 @router.post(
@@ -32,7 +36,7 @@ async def get_employee(
 ) -> schema.Employee:
     employee = await service.get_employee(db, employee_id)
     if not employee:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise exceptions.EmployeeIDDoesntExist("Employee with this ID doesn't exist")
     return employee
 
 
@@ -54,10 +58,13 @@ async def get_employees(
 )
 async def update_employee(
         employee_in: Annotated[schema.EmployeeIn, Depends(employee_service_number_unique)],
-        employee_id: Annotated[int, Depends(employee_id_exist)],
+        employee_id: Annotated[int, Path()],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:
-    return await service.update_employee(db, employee_in, employee_id)
+    employee = await service.update_employee(db, employee_in, employee_id)
+    if not employee:
+        raise exceptions.EmployeeIDDoesntExist("Employee with this ID doesn't exist")
+    return employee
 
 
 @router.delete(

@@ -11,8 +11,8 @@ class TitleBase(Base):
     name: str
 
 
-class TitleIn(TitleBase):
-    pass
+class TitleIn(Base):
+    name: str
 
 
 class Title(TitleBase):
@@ -24,45 +24,47 @@ class TitleOut(TitleBase):
 
 
 class TopicBase(Base):
-    number: int
     name: str
 
 
-class TopicIn(TopicBase):
-    pass
+class TopicIn(Base):
+    name: str
+    number: str
 
 
 class Topic(TopicBase):
     id: int
+    number: int
 
 
 class TopicOut(TopicBase):
-    pass
+    number: int
 
 
 class PostBase(Base):
-    code: int
     name: str
 
 
-class PostIn(PostBase):
-    pass
+class PostIn(Base):
+    name: str
+    code: str
 
 
 class Post(PostBase):
     id: int
+    code: int
 
 
 class PostOut(PostBase):
-    pass
+    code: int
 
 
 class CurrencyBase(Base):
     name: str
 
 
-class CurrencyIn(CurrencyBase):
-    pass
+class CurrencyIn(Base):
+    name: str
 
 
 class Currency(CurrencyBase):
@@ -77,7 +79,8 @@ class SalaryBase(Base):
     amount: int
 
 
-class SalaryIn(SalaryBase):
+class SalaryIn(Base):
+    amount: str
     currency: CurrencyIn
 
 
@@ -99,7 +102,13 @@ class EmployeeBase(Base):
     employment_date: datetime.date
 
 
-class EmployeeIn(EmployeeBase):
+class EmployeeIn(Base):
+    name: str
+    surname: str
+    patronymic: str
+    service_number: str
+    department_number: str
+    employment_date: str
     topic: TopicIn
     post: PostIn
     salary: SalaryIn

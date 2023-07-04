@@ -25,12 +25,12 @@ async def employee_service_number_not_unique_handler(request: Request, exc: Empl
 
 async def employee_id_doesnt_exist_handler(request: Request, exc: EmployeeIDDoesntExist) -> Response:
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_404_NOT_FOUND,
         content=ErrorResponseBody(
             [
                 ErrorInfo(
                     loc=[
-                        "body",
+                        "path",
                         "id"
                     ],
                     msg=str(exc),

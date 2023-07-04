@@ -10,9 +10,11 @@ from . import user_input
 from .errors_handlers import wrong_data_exception_handler
 
 
-def show_wrong_employee_data(window: sg.Window, error: storage.backend.WrongData) -> None:
+def show_wrong_employee_data_from_backend(window: sg.Window, error: storage.backend.WrongData) -> None:
     element_keys = []
     for err in error.errors:
+        while "0" in err.loc:
+            err.loc.remove("0")
         key = f"-EMPLOYEE-{'-'.join(err.loc[1:])}-".upper().replace("_", "-")
         element_keys.append(key)
 
@@ -31,11 +33,9 @@ def add_employee(
         backend: storage.backend.StorageBackend
 ) -> None:
 
-    employee = user_input.Employee.get_employee(values)
-
     @wrong_data_exception_handler(
         storage.backend.WrongData,
-        show_wrong_employee_data,
+        show_wrong_employee_data_from_backend,
         window
     )
     @events.raise_status_events(
@@ -45,6 +45,7 @@ def add_employee(
         events.EmployeeEvent.ADD_EMPLOYEE_FAIL
     )
     def call_add_employee() -> storage.schema.Employee:
+        employee = user_input.Employee.get_employee(values)
         return storage.service.add_employee(employee, backend)
 
     window.perform_long_operation(call_add_employee, end_key=events.Misc.NON_EXISTENT)
@@ -65,7 +66,7 @@ def update_employee(
 
     @wrong_data_exception_handler(
         storage.backend.WrongData,
-        show_wrong_employee_data,
+        show_wrong_employee_data_from_backend,
         window
     )
     @events.raise_status_events(
