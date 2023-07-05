@@ -6,10 +6,16 @@ from .events import EmployeeEvent, AppEvent
 
 MAIN_WINDOW_LAYOUT = [
     [sg.Table(
-        headings=["ID", "Name", "Surname", "Patronymic", "Service number", "Department number", "Employment date",
-                  "Topic number", "Topic name", "Post code", "Post name", "Salary amount", "Salary currency", "Titles"],
+        headings=[
+            "ID", "Name", "Surname", "Patronymic", "Service number", "Department number", "Employment date",
+            "Work duration in months", "Topic number", "Topic name", "Post code", "Post name", "Salary amount",
+            "Salary currency", "Titles"
+        ],
+        col_widths=[
+            6, 20, 20, 20, 15, 20, 15, 20, 15, 30, 15, 30, 15, 15, 40
+        ],
         values=[], key=EmployeeEvent.EMPLOYEE_SELECTED,
-        auto_size_columns=False, max_col_width=1000, def_col_width=15, vertical_scroll_only=False,
+        auto_size_columns=False, max_col_width=1000, vertical_scroll_only=False,
         enable_events=True, num_rows=30
     )],
     [sg.Text("Name:", size=(15, 1)), sg.Input(key=EmployeeForm.NAME, default_text="Name"),

@@ -1,4 +1,5 @@
 import datetime
+import decimal
 
 from pydantic import BaseModel, Field
 
@@ -76,7 +77,7 @@ class CurrencyOut(CurrencyBase):
 
 
 class SalaryBase(Base):
-    amount: int
+    amount: decimal.Decimal
 
 
 class SalaryIn(Base):

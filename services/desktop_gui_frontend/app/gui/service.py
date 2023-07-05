@@ -1,6 +1,8 @@
+import datetime
 from typing import Any
 
 import PySimpleGUI as sg
+from dateutil import relativedelta
 
 from app.service import storage
 from .keys import Key
@@ -149,11 +151,14 @@ def show_employees(window: sg.Window, values: dict[Key, Any]) -> None:
 
     table_rows = []
     for emp in employees_out:
+        work_duration_timedelta = relativedelta.relativedelta(datetime.date.today(), emp.employment_date)
+        work_duration_in_months = (work_duration_timedelta.years * 12) + work_duration_timedelta.months
         table_rows.append(
             [
                 emp.id, emp.name, emp.surname, emp.patronymic, emp.service_number, emp.department_number,
-                str(emp.employment_date), emp.topic.number, emp.topic.name, emp.post.code, emp.post.name,
-                emp.salary.amount, emp.salary.currency.name, ", ".join([title.name for title in emp.titles])
+                str(emp.employment_date), str(work_duration_in_months), emp.topic.number, emp.topic.name, emp.post.code,
+                emp.post.name, emp.salary.amount,
+                emp.salary.currency.name, ", ".join([title.name for title in emp.titles])
             ]
         )
 
