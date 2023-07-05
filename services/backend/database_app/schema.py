@@ -10,7 +10,7 @@ class Base(BaseModel):
 
 
 class ErrorInfo(Base):
-    loc: list[str]
+    loc: list[str | int]
     msg: str
     type: str
 
