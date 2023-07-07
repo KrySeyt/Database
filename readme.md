@@ -27,6 +27,11 @@ git clone https://github.com/KrySeyt/StatisticsAndAnalysis.git
 cd StatisticsAndAnalysis
 ```
 
+- Setup BACKEND__CURRENCY_EXCHANGE_RATES__API_KEY with API access key of https://exchangeratesapi.io/. You can get free plan after registration with 1000 requests per month
+```shell
+  export BACKEND__CURRENCY_EXCHANGE_RATES__API_KEY=<api_key>
+```
+
 - Run app 
 ```shell
 docker compose -f run-locally.yml up -d
