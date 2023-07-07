@@ -3,8 +3,8 @@
 import datetime
 import decimal
 
-from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, ForeignKey, Table, Column, Numeric
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from database_app.database import DBModelBase
 

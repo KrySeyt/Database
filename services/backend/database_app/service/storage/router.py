@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, Path, HTTPException, status, Query
+from fastapi import APIRouter, Depends, Path, status, Query
 
 from database_app.service.storage import schema, service
 from ...dependencies import get_db_stub

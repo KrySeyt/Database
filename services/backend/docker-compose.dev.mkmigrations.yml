@@ -2,17 +2,9 @@ version: "3.8"
 
 services:
   backend:
-    build: .
-    ports:
-      - 8000:8000
-    volumes:
-      - ./:/backend/
-      - /backend/venv
-    environment:
-      - BACKEND__DATABASE__POSTGRES_DSN=postgresql://postgres:postgres@postgres:5432/postgres
-    depends_on:
-      postgres:
-        condition: service_healthy
+    extends:
+      file: docker-compose.dev.yml
+      service: backend
     entrypoint: bash -c "
         alembic upgrade head && \
         alembic revision --autogenerate && \
@@ -21,14 +13,6 @@ services:
       "
 
   postgres:
-    image: postgres:latest
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d postgres -U postgres"]
-      interval: 1s
-      timeout: 1s
-      retries: 30
+    extends:
+      file: docker-compose.dev.yml
+      service: postgres

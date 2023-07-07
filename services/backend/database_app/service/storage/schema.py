@@ -4,7 +4,7 @@ import decimal
 from pydantic import BaseModel, Field, validator
 
 
-class Base(BaseModel):
+class Base(BaseModel, frozen=True):
     pass
 
 
@@ -113,13 +113,13 @@ class SalaryBase(Base):
 
     @validator("amount")
     def salary_is_normal(cls, amount: decimal.Decimal) -> decimal.Decimal:
-        amount.is_normal()
+        if not amount.is_normal():
+            raise ValueError("Salary amount is not normal number")
         return amount
 
     @validator("amount")
     def salary_has_correct_scale(cls, amount: decimal.Decimal) -> decimal.Decimal:
-        amount.is_normal()
-        if len(str(amount % 1)) > 2:
+        if len(str(amount % 1)) - 2 > 2:
             raise ValueError("Salary amount has too much scale. Max scale is 2")
         return amount
 

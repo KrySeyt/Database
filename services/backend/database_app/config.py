@@ -1,14 +1,20 @@
 from functools import lru_cache
 
-from pydantic import BaseSettings, BaseModel, PostgresDsn
+from pydantic import BaseSettings, BaseModel, PostgresDsn, HttpUrl
 
 
 class DatabaseSettings(BaseModel):
     postgres_dsn: PostgresDsn
 
 
+class CurrencyExchangeRatesSettings(BaseModel):
+    api_url: HttpUrl
+    api_key: str
+
+
 class Settings(BaseSettings):
     database: DatabaseSettings
+    currency_exchange_rates: CurrencyExchangeRatesSettings
 
     class Config:
         env_prefix = "BACKEND__"

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database_app.service.storage import schema, crud
+from . import schema, crud
 
 
 async def is_service_number_occupied(db: AsyncSession, service_number: int) -> bool:
@@ -25,6 +25,11 @@ async def get_employee(db: AsyncSession, employee_id: int) -> schema.Employee | 
 
 async def get_employees(db: AsyncSession, skip: int, limit: int) -> list[schema.Employee]:
     db_employees = await crud.get_employees(db, skip, limit)
+    return [schema.Employee.from_orm(db_emp) for db_emp in db_employees]
+
+
+async def get_all_employees(db: AsyncSession) -> list[schema.Employee]:
+    db_employees = await crud.get_all_employees(db)
     return [schema.Employee.from_orm(db_emp) for db_emp in db_employees]
 
 

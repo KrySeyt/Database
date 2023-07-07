@@ -7,6 +7,8 @@ services:
       - 8000:8000
     environment:
       - BACKEND__DATABASE__POSTGRES_DSN=postgresql://postgres:postgres@postgres:5432/postgres
+      - BACKEND__CURRENCY_EXCHANGE_RATES__API_URL=http://api.exchangeratesapi.io/v1/
+      - BACKEND__CURRENCY_EXCHANGE_RATES__API_KEY
     depends_on:
       postgres:
         condition: service_healthy

@@ -127,6 +127,11 @@ async def get_employees(db: AsyncSession, skip: int, limit: int) -> list[models.
     return list((await db.scalars(stmt)).all())
 
 
+async def get_all_employees(db: AsyncSession) -> list[models.Employee]:
+    stmt = select(models.Employee).order_by(asc(models.Employee.id))
+    return list((await db.scalars(stmt)).all())
+
+
 async def update_employee(
         db: AsyncSession,
         employee_in: schema.EmployeeIn,
@@ -157,6 +162,9 @@ async def delete_employee(db: AsyncSession, employee_id: int) -> models.Employee
 
 async def search_employees(db: AsyncSession, search_model: schema.EmployeeSearchModel) -> list[models.Employee]:
     search_params = {k: v for k, v in search_model.dict().items() if v is not None}
+
+    if not search_params:
+        return []
 
     stmt = select(models.Employee).where(
         *[getattr(models.Employee, key) == search_params[key] for key in search_params]

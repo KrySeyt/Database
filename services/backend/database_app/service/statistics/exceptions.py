@@ -1,0 +1,2 @@
+class NoEmployees(Exception):
+    pass
