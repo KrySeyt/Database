@@ -1,2 +1,2 @@
-class NoEmployees(Exception):
+class NoEmployeesExist(Exception):
     pass

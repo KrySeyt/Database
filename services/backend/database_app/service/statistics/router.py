@@ -22,7 +22,7 @@ async def get_highest_paid_employees(
 ) -> list[storage_schema.Employee]:
     employees = await service.get_highest_paid_employee(db, employees_count)
     if not employees:
-        raise exceptions.NoEmployees("Not single employee exist")
+        raise exceptions.NoEmployeesExist("Not single employee exist")
     return employees
 
 
@@ -37,7 +37,7 @@ async def get_work_longest_employees(
 ) -> list[storage_schema.Employee]:
     employees = await service.get_work_longest_employee(db, employees_count)
     if not employees:
-        raise exceptions.NoEmployees("Not single employee exist")
+        raise exceptions.NoEmployeesExist("Not single employee exist")
     return employees
 
 
@@ -63,5 +63,5 @@ async def get_title_employees_growth(
 ) -> dict[int, int]:
     employees_growth = await service.get_title_employees_growth_history(db, title)
     if not employees_growth:
-        raise exceptions.NoEmployees("Not single employee exist")
+        raise exceptions.NoEmployeesExist("Not single employee exist")
     return employees_growth

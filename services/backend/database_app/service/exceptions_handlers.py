@@ -2,10 +2,10 @@ from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
 from database_app.schema import ErrorResponseBody, ErrorInfo
-from database_app.service.exceptions import NoEmployees
+from database_app.service.exceptions import NoEmployeesExist
 
 
-async def no_employees_handler(request: Request, exception: NoEmployees) -> Response:
+async def no_employees_handler(request: Request, exception: NoEmployeesExist) -> Response:
     return JSONResponse(
         status_code=404,
         content=ErrorResponseBody(
