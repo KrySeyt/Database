@@ -1,4 +1,4 @@
-я<hr>
+<hr>
 
 # Functional requirements
 
