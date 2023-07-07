@@ -6,7 +6,7 @@ from ..storage import service as storage_service
 from . import crud
 
 
-async def get_highest_paid_employee(db: AsyncSession, employees_count: int) -> list[storage_schema.Employee]:
+async def get_highest_paid_employees(db: AsyncSession, employees_count: int) -> list[storage_schema.Employee]:
     employees = await storage_service.get_all_employees(db)
 
     usd_currency = storage_schema.Currency(id=0, name="USD")

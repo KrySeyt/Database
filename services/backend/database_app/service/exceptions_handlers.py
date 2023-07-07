@@ -19,5 +19,5 @@ async def no_employees_handler(request: Request, exception: NoEmployeesExist) ->
                     type_="db_error.no_employees"
                 )
             ]
-        )
+        ).dict()
     )

@@ -20,7 +20,7 @@ async def get_highest_paid_employees(
         employees_count: Annotated[int, Path()],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> list[storage_schema.Employee]:
-    employees = await service.get_highest_paid_employee(db, employees_count)
+    employees = await service.get_highest_paid_employees(db, employees_count)
     if not employees:
         raise exceptions.NoEmployeesExist("Not single employee exist")
     return employees
