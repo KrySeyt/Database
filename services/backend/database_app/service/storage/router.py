@@ -9,7 +9,8 @@ from ...schema import ErrorResponseBody
 from .dependencies import employee_service_number_unique
 from . import exceptions
 
-router = APIRouter()
+
+router = APIRouter(tags=["Storage"], prefix="/storage")
 
 
 @router.post(

@@ -127,6 +127,11 @@ async def get_employees(db: AsyncSession, skip: int, limit: int) -> list[models.
     return list((await db.scalars(stmt)).all())
 
 
+async def get_employees_by_title(db: AsyncSession, title: schema.TitleIn) -> list[models.Employee]:
+    stmt = select(models.Employee).join(models.Employee, models.Title.employees).where(models.Title.name == title.name)
+    return list((await db.scalars(stmt)).all())
+
+
 async def get_all_employees(db: AsyncSession) -> list[models.Employee]:
     stmt = select(models.Employee).order_by(asc(models.Employee.id))
     return list((await db.scalars(stmt)).all())

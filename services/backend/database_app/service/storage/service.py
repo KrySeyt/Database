@@ -28,6 +28,11 @@ async def get_employees(db: AsyncSession, skip: int, limit: int) -> list[schema.
     return [schema.Employee.from_orm(db_emp) for db_emp in db_employees]
 
 
+async def get_employees_by_title(db: AsyncSession, title: schema.TitleIn) -> list[schema.Employee]:
+    db_employees = await crud.get_employees_by_title(db, title)
+    return [schema.Employee.from_orm(db_emp) for db_emp in db_employees]
+
+
 async def get_all_employees(db: AsyncSession) -> list[schema.Employee]:
     db_employees = await crud.get_all_employees(db)
     return [schema.Employee.from_orm(db_emp) for db_emp in db_employees]

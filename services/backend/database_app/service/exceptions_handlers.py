@@ -1,8 +1,8 @@
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 
-from ...schema import ErrorResponseBody, ErrorInfo
-from .exceptions import NoEmployees
+from database_app.schema import ErrorResponseBody, ErrorInfo
+from database_app.service.exceptions import NoEmployees
 
 
 async def no_employees_handler(request: Request, exception: NoEmployees) -> Response:
