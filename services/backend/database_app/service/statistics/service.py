@@ -19,7 +19,7 @@ async def get_highest_paid_employees(db: AsyncSession, employees_count: int) -> 
         employees_with_usd_salaries.append((emp, emp.salary.amount * employee_salary_currency_course_to_usd))
 
     employees_with_usd_salaries.sort(key=lambda entry: entry[1], reverse=True)
-    return [storage_schema.Employee.from_orm(i) for i in employees_with_usd_salaries[:employees_count]]
+    return [storage_schema.Employee.from_orm(i[0]) for i in employees_with_usd_salaries[:employees_count]]
 
 
 async def get_work_longest_employee(db: AsyncSession, employees_count: int) -> list[storage_schema.Employee]:
