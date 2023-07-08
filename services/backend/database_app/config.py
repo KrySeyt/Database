@@ -9,7 +9,7 @@ class DatabaseSettings(BaseModel):
 
 class CurrencyExchangeRatesSettings(BaseModel):
     api_url: HttpUrl
-    api_key: str
+    api_key: str | None
 
 
 class Settings(BaseSettings):

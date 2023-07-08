@@ -33,7 +33,8 @@ async def get_currency_course(
     :return: Exchange course for currency to another_currency. If one of currency unknown - return 0
     """
 
-    if __debug__:
+    exchange_api_access_key = get_settings().currency_exchange_rates.api_key
+    if __debug__ or not exchange_api_access_key:
         response_json = {
             'base': 'EUR',
             'date': '2023-07-07',
@@ -81,7 +82,7 @@ async def get_currency_course(
     else:
         api_url = get_settings().currency_exchange_rates.api_url
         params = {
-            "access_key": get_settings().currency_exchange_rates.api_key,
+            "access_key": exchange_api_access_key,
             "symbols": ",".join((first_currency.name, second_currency.name))
         }
 
