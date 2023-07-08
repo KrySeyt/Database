@@ -12,7 +12,7 @@ router = APIRouter(tags=["Statistics"], prefix="/statistics")
 
 
 @router.get(
-    path="/highest_paid_employee/{employees_count}",
+    path="/highest_paid_employees/{employees_count}",
     response_model=list[storage_schema.EmployeeOut],
     status_code=status.HTTP_200_OK,
 )
