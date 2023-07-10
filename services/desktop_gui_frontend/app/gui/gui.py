@@ -19,7 +19,7 @@ class GUI:
 
     def start(self) -> None:
         window = self._run_main_window()
-        window.write_event_value(events.AppEvent.START, None)
+        window.write_event_value(events.WindowEvent.OPEN, None)
 
         self._run_input_handler()
 
@@ -38,14 +38,15 @@ class GUI:
         while True:
             window, event, values = windows.HierarchicalWindow.read_all_windows()
 
-            if not window:
-                return
-            event = event or events.AppEvent.EXIT
-            assert values
-
-            window[events.EmployeeEvent.EMPLOYEE_SELECTED].update()
-
             if __debug__:
                 print(window, event, values)
+
+            if not window:
+                return
+
+            if values is None:
+                return
+
+            event = event or events.WindowEvent.CLOSE
 
             self.events_handler.handle_event(window, event, values)

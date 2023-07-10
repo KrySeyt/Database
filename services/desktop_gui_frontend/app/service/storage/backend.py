@@ -25,7 +25,7 @@ class StorageBackend:
         self.backend_url = backend_url
 
     def add_employee(self, employee: schema.EmployeeIn) -> schema.Employee:
-        endpoint_url = rf"{self.backend_url}/employee"
+        endpoint_url = rf"{self.backend_url}/storage/employee"
 
         try:
             response = requests.post(
@@ -56,7 +56,7 @@ class StorageBackend:
         return schema.Employee.parse_obj(response.json())
 
     def get_employees(self, skip: int, limit: int) -> list[schema.Employee]:
-        endpoint_url = rf"{self.backend_url}/employees"
+        endpoint_url = rf"{self.backend_url}/storage/employees"
 
         params = {
             "skip": skip,
@@ -79,7 +79,7 @@ class StorageBackend:
         return employees
 
     def update_employee(self, employee: schema.EmployeeIn, employee_id: int) -> schema.Employee:
-        endpoint_url = rf"{self.backend_url}/employee/{employee_id}"
+        endpoint_url = rf"{self.backend_url}/storage/employee/{employee_id}"
 
         try:
             response = requests.put(
@@ -109,7 +109,7 @@ class StorageBackend:
         return schema.Employee.parse_obj(response.json())
 
     def delete_employees(self, employees_ids: list[int]) -> list[schema.Employee]:
-        endpoint_url = rf"{self.backend_url}/employee"
+        endpoint_url = rf"{self.backend_url}/storage/employee"
 
         try:
             employees = []
@@ -150,3 +150,93 @@ class StorageBackend:
             print(response.json())
 
         return [schema.Employee.parse_obj(i) for i in response.json()]
+
+    def get_max_work_duration_employees(self, employees_count: str) -> list[schema.Employee]:
+        endpoint_url = rf"{self.backend_url}/statistics/work_longest_employees/{employees_count}"
+
+        try:
+            response = requests.get(
+                endpoint_url
+            )
+        except requests.exceptions.ConnectionError as err:
+            raise BackendConnectionError from err
+
+        if response.status_code == http.HTTPStatus.NOT_FOUND:
+            return []
+
+        if response.status_code >= 500:
+            raise BackendServerError
+
+        if __debug__:
+            print(f"Status code: {response.status_code}")
+            print(response.json())
+
+        return [schema.Employee.parse_obj(i) for i in response.json()]
+
+    def get_highest_paid_employees(self, employees_count: str) -> list[schema.Employee]:
+        endpoint_url = rf"{self.backend_url}/statistics/highest_paid_employees/{employees_count}"
+
+        try:
+            response = requests.get(
+                endpoint_url
+            )
+        except requests.exceptions.ConnectionError as err:
+            raise BackendConnectionError from err
+
+        if response.status_code == http.HTTPStatus.NOT_FOUND:
+            return []
+
+        if response.status_code >= 500:
+            raise BackendServerError
+
+        if __debug__:
+            print(f"Status code: {response.status_code}")
+            print(response.json())
+
+        return [schema.Employee.parse_obj(i) for i in response.json()]
+
+    def get_title_employees_history_growth(self, title_name: str) -> dict[int, int]:
+        endpoint_url = rf"{self.backend_url}/statistics/title_employees_growth_history"
+
+        try:
+            response = requests.post(
+                endpoint_url,
+                json={"name": title_name}
+            )
+        except requests.exceptions.ConnectionError as err:
+            raise BackendConnectionError from err
+
+        if response.status_code >= 500:
+            raise BackendServerError
+
+        if __debug__:
+            print(f"Status code: {response.status_code}")
+            print(response.json())
+
+        if response.ok:
+            return {int(k): v for k, v in response.json().items()}
+        else:
+            return {}
+
+    def get_title_employees_forecast_growth(self, title_name: str, years_count: int) -> dict[int, int]:
+        endpoint_url = rf"{self.backend_url}/forecasts/title_employees_growth/{years_count}"
+
+        try:
+            response = requests.post(
+                endpoint_url,
+                json={"name": title_name}
+            )
+        except requests.exceptions.ConnectionError as err:
+            raise BackendConnectionError from err
+
+        if response.status_code >= 500:
+            raise BackendServerError
+
+        if __debug__:
+            print(f"Status code: {response.status_code}")
+            print(response.json())
+
+        if response.ok:
+            return {int(k): v for k, v in response.json().items()}
+        else:
+            return {}

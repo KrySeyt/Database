@@ -12,6 +12,11 @@ class HierarchicalWindow(sg.Window):  # type: ignore
         super().__init__(*args, **kwargs)
         self.child_windows: list[Self] = []
 
+    def create_child_window(self, *args: Any, **kwargs: Any) -> Self:
+        new_window = type(self)(*args, **kwargs)
+        self.child_windows.append(new_window)
+        return new_window
+
     def close(self) -> None:
         super().close()
         assert self.is_closed()

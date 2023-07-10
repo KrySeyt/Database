@@ -2,6 +2,39 @@ from .backend import StorageBackend, BackendConnectionError
 from . import schema
 
 
+def get_title_employees_history_growth(title_name: str, backend: StorageBackend) -> dict[int, int]:
+    try:
+        return backend.get_title_employees_history_growth(title_name)
+    except BackendConnectionError:
+        raise
+
+
+def get_title_employees_forecast_growth(
+        title_name: str,
+        years_count: int,
+        backend: StorageBackend
+) -> dict[int, int]:
+
+    try:
+        return backend.get_title_employees_forecast_growth(title_name, years_count)
+    except BackendConnectionError:
+        raise
+
+
+def get_max_work_duration_employees(employees_count: str, backend: StorageBackend) -> list[schema.Employee]:
+    try:
+        return backend.get_max_work_duration_employees(employees_count)
+    except BackendConnectionError:
+        raise
+
+
+def get_highest_paid_employees(employees_count: str, backend: StorageBackend) -> list[schema.Employee]:
+    try:
+        return backend.get_highest_paid_employees(employees_count)
+    except BackendConnectionError:
+        raise
+
+
 def add_employee(employee_in: schema.EmployeeIn, backend: StorageBackend) -> schema.Employee:
     try:
         return backend.add_employee(employee_in)
