@@ -3,6 +3,8 @@ import decimal
 
 from pydantic import BaseModel, Field, validator
 
+from . import utils
+
 
 class Base(BaseModel, frozen=True):
     pass
@@ -90,6 +92,12 @@ class CurrencyBase(Base):
     def name_is_alpha(cls, name: str) -> str:
         if not name.isalpha():
             raise ValueError("Name should be alphabetic")
+        return name
+
+    @validator("name")
+    def currency_exist(cls, name: str) -> str:
+        if name not in utils.currencies:
+            raise ValueError("Unknown currency")
         return name
 
 
