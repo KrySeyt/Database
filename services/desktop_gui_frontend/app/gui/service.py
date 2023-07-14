@@ -118,8 +118,37 @@ def search_employees(
     search_attrs_as_entry = [
         values[elements.EmployeeForm.NAME] or None,
         values[elements.EmployeeForm.SURNAME] or None,
-        values[elements.EmployeeForm.PATRONYMIC] or None
+        values[elements.EmployeeForm.PATRONYMIC] or None,
+        values[elements.EmployeeForm.DEPARTMENT_NUMBER] or None,
+        values[elements.EmployeeForm.SERVICE_NUMBER] or None,
+        values[elements.EmployeeForm.EMPLOYMENT_DATE] or None,
+        values[elements.EmployeeForm.TITLES] or None,
+        values[elements.EmployeeForm.TOPIC_NUMBER] or None,
+        values[elements.EmployeeForm.TOPIC_NAME] or None,
+        values[elements.EmployeeForm.POST_CODE] or None,
+        values[elements.EmployeeForm.POST_NAME] or None,
+        values[elements.EmployeeForm.SALARY_AMOUNT] or None,
+        values[elements.EmployeeForm.SALARY_CURRENCY] or None
     ]
+
+    if not any(search_attrs_as_entry):
+        return
+
+    search_attrs_to_entry_params_mapping = {
+        0: 1,
+        1: 2,
+        2: 3,
+        3: 5,
+        4: 4,
+        5: 6,
+        6: 14,
+        7: 8,
+        8: 9,
+        9: 10,
+        10: 11,
+        11: 12,
+        12: 13,
+    }
 
     if not any(search_attrs_as_entry):
         return
@@ -128,11 +157,26 @@ def search_employees(
 
     matched_entries_numbers = []
     for entry_number, entry in enumerate(employees_entries):
-        for i, employee_attr in enumerate(entry[1:]):  # Skip employee ID
-            if employee_attr == search_attrs_as_entry[i]:
-                matched_entries_numbers.append(entry_number)
+        matched = True
+
+        for i, param in enumerate(search_attrs_as_entry):
+            if not param:
                 continue
 
+            if i == 6 and param:
+                if not set(param.split(", ")).issubset(set(entry[search_attrs_to_entry_params_mapping[i]].split(", "))):
+                    print(param.split(", "))
+                    print(entry[search_attrs_to_entry_params_mapping[i]].split(", "))
+                    matched = False
+
+            elif str(param) != str(entry[search_attrs_to_entry_params_mapping[i]]):
+                matched = False
+
+        if matched:
+            print("Append")
+            matched_entries_numbers.append(entry_number)
+
+    print(matched_entries_numbers)
     window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(select_rows=matched_entries_numbers)
 
 
