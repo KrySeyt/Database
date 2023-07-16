@@ -117,6 +117,55 @@ async def create_employee(db: AsyncSession, employee_in: schema.EmployeeIn) -> m
     return db_employee
 
 
+async def update_employee(db: AsyncSession, employee_in: schema.EmployeeIn, employee_id: int) -> models.Employee | None:
+    db_employee = await get_employee(db, employee_id)
+
+    if not db_employee:
+        return None
+
+    db_topic = await get_topic_by_name_and_number(
+        db,
+        employee_in.topic.name,
+        employee_in.topic.number
+    ) or models.Topic(**employee_in.topic.dict())
+
+    db_post = await get_post_by_name_and_code(
+        db,
+        employee_in.post.name,
+        employee_in.post.code
+    ) or models.Post(**employee_in.post.dict())
+
+    db_salary = await get_salary_by_amount_and_currency(
+        db,
+        employee_in.salary.amount,
+        employee_in.salary.currency
+    ) or await create_salary(db, employee_in.salary)
+
+    db_titles = [
+        await get_title_by_name(
+            db,
+            i.name
+        ) or models.Title(**i.dict())
+        for i in employee_in.titles
+    ]
+
+    db_employee.name = employee_in.name
+    db_employee.surname = employee_in.surname
+    db_employee.patronymic = employee_in.patronymic
+    db_employee.department_number = employee_in.department_number
+    db_employee.service_number = employee_in.service_number
+    db_employee.employment_date = employee_in.employment_date
+    db_employee.topic = db_topic
+    db_employee.post = db_post
+    db_employee.salary = db_salary
+    db_employee.titles = db_titles
+
+    db.add(db_employee)
+    await db.commit()
+    await db.refresh(db_employee)
+    return db_employee
+
+
 async def get_employee(db: AsyncSession, employee_id: int) -> models.Employee | None:
     db_employee = await db.get(models.Employee, employee_id)
     return db_employee
@@ -135,23 +184,6 @@ async def get_employees_by_title(db: AsyncSession, title: schema.TitleIn) -> lis
 async def get_all_employees(db: AsyncSession) -> list[models.Employee]:
     stmt = select(models.Employee).order_by(asc(models.Employee.id))
     return list((await db.scalars(stmt)).all())
-
-
-async def update_employee(
-        db: AsyncSession,
-        employee_in: schema.EmployeeIn,
-        employee_id: int
-) -> models.Employee | None:
-
-    db_employee = await get_employee(db, employee_id)
-
-    for key in employee_in.dict():
-        setattr(db_employee, key, getattr(employee_in, key))
-
-    await db.commit()
-    await db.refresh(db_employee)
-
-    return db_employee
 
 
 async def delete_employee(db: AsyncSession, employee_id: int) -> models.Employee | None:

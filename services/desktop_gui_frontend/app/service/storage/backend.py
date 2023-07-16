@@ -43,15 +43,15 @@ class StorageBackend:
             print(f"Status code: {response.status_code}")
             print(response.json())
 
-        if response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY:
-            assert "detail" in response.json().keys(), "No key \"Detail\" in error logs"
+            if response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY:
+                assert "detail" in response.json().keys(), "No key \"Detail\" in error logs"
 
-            errors_info = []
-            for err_info in response.json()["detail"]:
-                print(err_info)
-                errors_info.append(schema.BackendWrongDataInfo(**err_info))
+                errors_info = []
+                for err_info in response.json()["detail"]:
+                    print(err_info)
+                    errors_info.append(schema.BackendWrongDataInfo(**err_info))
 
-            raise WrongData(errors_info)
+                raise WrongData(errors_info)
 
         return schema.Employee.parse_obj(response.json())
 
@@ -102,7 +102,7 @@ class StorageBackend:
 
             errors_info = []
             for err_info in response.json()["detail"]:
-                errors_info.append(err_info)
+                errors_info.append(schema.BackendWrongDataInfo(**err_info))
 
             raise WrongData(errors_info)
 

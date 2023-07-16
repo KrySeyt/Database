@@ -9,12 +9,11 @@ from . import crud
 async def get_highest_paid_employees(db: AsyncSession, employees_count: int) -> list[storage_schema.Employee]:
     employees = await storage_service.get_all_employees(db)
 
-    usd_currency = storage_schema.Currency(id=0, name="USD")
     employees_with_usd_salaries = []
     for emp in employees:
         employee_salary_currency_course_to_usd = await storage_utils.get_currency_course(
-            emp.salary.currency,
-            usd_currency,
+            emp.salary.currency.name,
+            "USD",
         )
         employees_with_usd_salaries.append((emp, emp.salary.amount * employee_salary_currency_course_to_usd))
 

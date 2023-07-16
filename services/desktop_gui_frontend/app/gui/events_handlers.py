@@ -197,7 +197,7 @@ class EventsHandler:
 
         service.show_success(window)
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees(window, backend)
+        service.update_employees_list(window, backend)
 
     @staticmethod
     def _add_employee_fail_handler(
@@ -234,7 +234,7 @@ class EventsHandler:
 
         service.show_success(window)
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees(window, backend)
+        service.update_employees_list(window, backend)
 
     @staticmethod
     def _update_employee_processing_handler(
@@ -269,7 +269,7 @@ class EventsHandler:
 
         service.show_success(window)
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees(window, backend)
+        service.update_employees_list(window, backend)
 
     @staticmethod
     def _delete_employees_processing_handler(
@@ -302,7 +302,7 @@ class EventsHandler:
     ) -> None:
 
         backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees(window, backend)
+        service.update_employees_list(window, backend)
 
     @staticmethod
     def _employee_entry_selected_handler(

@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, Path, status, Query
+from fastapi import APIRouter, Depends, Path, status, Query, Body
 
 from database_app.service.storage import schema, service
 from ...dependencies import get_db_stub
@@ -62,7 +62,7 @@ async def get_employees(
     }
 )
 async def update_employee(
-        employee_in: Annotated[schema.EmployeeIn, Depends(employee_service_number_unique)],
+        employee_in: Annotated[schema.EmployeeIn, Body()],
         employee_id: Annotated[int, Path()],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:

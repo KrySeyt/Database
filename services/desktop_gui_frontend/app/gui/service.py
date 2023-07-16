@@ -180,7 +180,7 @@ def search_employees(
     window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(select_rows=matched_entries_numbers)
 
 
-def update_employees(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
+def update_employees_list(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
     @events.raise_status_events(
         window,
         events.EmployeeEvent.GET_EMPLOYEES_SUCCESS,
@@ -225,6 +225,16 @@ def insert_selected_employee_to_form(
     window[elements.EmployeeForm.NAME].update(value=employee_entry_in_list[1])
     window[elements.EmployeeForm.SURNAME].update(value=employee_entry_in_list[2])
     window[elements.EmployeeForm.PATRONYMIC].update(value=employee_entry_in_list[3])
+    window[elements.EmployeeForm.SERVICE_NUMBER].update(value=employee_entry_in_list[4])
+    window[elements.EmployeeForm.DEPARTMENT_NUMBER].update(value=employee_entry_in_list[5])
+    window[elements.EmployeeForm.EMPLOYMENT_DATE].update(value=employee_entry_in_list[6])
+    window[elements.EmployeeForm.TOPIC_NUMBER].update(value=employee_entry_in_list[8])
+    window[elements.EmployeeForm.TOPIC_NAME].update(value=employee_entry_in_list[9])
+    window[elements.EmployeeForm.POST_CODE].update(value=employee_entry_in_list[10])
+    window[elements.EmployeeForm.POST_NAME].update(value=employee_entry_in_list[11])
+    window[elements.EmployeeForm.SALARY_AMOUNT].update(value=employee_entry_in_list[12])
+    window[elements.EmployeeForm.SALARY_CURRENCY].update(value=employee_entry_in_list[13])
+    window[elements.EmployeeForm.TITLES].update(value=employee_entry_in_list[14])
 
 
 def show_success(window: sg.Window) -> None:
