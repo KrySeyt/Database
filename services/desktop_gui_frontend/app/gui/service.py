@@ -9,7 +9,12 @@ import matplotlib
 import PySimpleGUI as sg
 from dateutil import relativedelta
 
+import app.service.exceptions
+import app.service.forecasts.service
+import app.service.statistics.service
 from app.service import storage
+from app.service import statistics
+from app.service import forecasts
 from .keys import Key
 from . import events
 from . import elements
@@ -21,7 +26,7 @@ from .errors_handlers import wrong_data_exception_handler
 matplotlib.use("TkAgg")
 
 
-def show_wrong_employee_data_from_backend(window: sg.Window, error: storage.backend.WrongData) -> None:
+def show_wrong_employee_data_from_backend(window: sg.Window, error: app.service.exceptions.WrongData) -> None:
     element_keys = []
     for err in error.errors:
         while "0" in err.loc:
@@ -44,7 +49,7 @@ def add_employee(
         backend: storage.backend.StorageBackend
 ) -> None:
     @wrong_data_exception_handler(
-        storage.backend.WrongData,
+        app.service.exceptions.WrongData,
         show_wrong_employee_data_from_backend,
         window
     )
@@ -74,7 +79,7 @@ def update_employee(
     employee = user_input.Employee.get_employee(values)
 
     @wrong_data_exception_handler(
-        storage.backend.WrongData,
+        app.service.exceptions.WrongData,
         show_wrong_employee_data_from_backend,
         window
     )
@@ -297,7 +302,7 @@ def open_forecasts_window(window: sg.Window) -> sg.Window:
 def show_max_work_duration_employees(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        backend: statistics.backend.StatisticsBackend
 ) -> None:
     employees_count = values[elements.Statistics.MAX_WORK_DURATION_EMPLOYEES_COUNT]
 
@@ -308,7 +313,7 @@ def show_max_work_duration_employees(
         events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_FAIL
     )
     def call_get_max_work_duration_employees() -> list[storage.schema.Employee]:
-        return storage.service.get_max_work_duration_employees(employees_count, backend)
+        return app.service.statistics.service.get_max_work_duration_employees(employees_count, backend)
 
     window.perform_long_operation(call_get_max_work_duration_employees, end_key=events.Misc.NON_EXISTENT)
 
@@ -355,7 +360,7 @@ def show_max_work_duration_employees_graph(window: sg.Window, values: dict[Key, 
 def show_highest_paid_employees(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        backend: statistics.backend.StatisticsBackend
 ) -> None:
     employees_count = values[elements.Statistics.HIGHEST_PAID_EMPLOYEES_COUNT]
 
@@ -366,7 +371,7 @@ def show_highest_paid_employees(
         events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_FAIL
     )
     def call_get_highest_paid_employees() -> list[storage.schema.Employee]:
-        return storage.service.get_highest_paid_employees(employees_count, backend)
+        return app.service.statistics.service.get_highest_paid_employees(employees_count, backend)
 
     window.perform_long_operation(call_get_highest_paid_employees, end_key=events.Misc.NON_EXISTENT)
 
@@ -427,7 +432,7 @@ def show_highest_paid_employees_graph(window: sg.Window, values: dict[Key, Any])
 def show_title_employees_history_growth(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        backend: statistics.backend.StatisticsBackend
 ) -> None:
 
     title_name = values[elements.Statistics.TITLE_EMPLOYEES_GROWTH_HISTORY_TITLE_NAME]
@@ -439,7 +444,7 @@ def show_title_employees_history_growth(
         events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL
     )
     def call_get_title_employees_history_growth() -> dict[int, int]:
-        return storage.service.get_title_employees_history_growth(title_name, backend)
+        return app.service.statistics.service.get_title_employees_history_growth(title_name, backend)
 
     window.perform_long_operation(call_get_title_employees_history_growth, end_key=events.Misc.NON_EXISTENT)
 
@@ -485,7 +490,7 @@ def show_title_employees_history_growth_graph(window: sg.Window, values: dict[Ke
 def show_title_employees_forecast_growth(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        backend: forecasts.backend.ForecastsBackend
 ) -> None:
 
     title_name = values[elements.Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_TITLE_NAME]
@@ -498,7 +503,7 @@ def show_title_employees_forecast_growth(
         events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL
     )
     def call_get_title_employees_forecast_growth() -> dict[int, int]:
-        return storage.service.get_title_employees_forecast_growth(title_name, years_count, backend)
+        return app.service.forecasts.service.get_title_employees_forecast_growth(title_name, years_count, backend)
 
     window.perform_long_operation(call_get_title_employees_forecast_growth, end_key=events.Misc.NON_EXISTENT)
 

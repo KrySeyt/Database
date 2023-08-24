@@ -27,7 +27,7 @@ services:
     networks:
       - network
     environment:
-      - DESKTOP_GUI_FRONTEND__BACKEND_LOCATION=http://backend:8000
+      - DESKTOP_GUI_FRONTEND__BACKEND_LOCATION=http://backend
     depends_on:
       backend:
         condition: service_healthy

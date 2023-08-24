@@ -4,6 +4,8 @@ import PySimpleGUI as sg
 
 from app.config import get_settings
 from app.service.storage.dependencies import get_storage_backend
+from app.service.statistics.dependencies import get_statistics_backend
+from app.service.forecasts.dependencies import get_forecasts_backend
 from .keys import Key
 from . import events
 from . import service
@@ -335,7 +337,7 @@ class EventsHandler:
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
+        backend = get_statistics_backend(get_settings().backend_location)
         service.show_max_work_duration_employees(window, values, backend)
 
     @staticmethod
@@ -369,7 +371,7 @@ class EventsHandler:
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
+        backend = get_statistics_backend(get_settings().backend_location)
         service.show_highest_paid_employees(window, values, backend)
 
     @staticmethod
@@ -403,7 +405,7 @@ class EventsHandler:
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
+        backend = get_statistics_backend(get_settings().backend_location)
         service.show_title_employees_history_growth(window, values, backend)
 
     @staticmethod
@@ -505,7 +507,7 @@ class EventsHandler:
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
+        backend = get_forecasts_backend(get_settings().backend_location)
         service.show_title_employees_forecast_growth(window, values, backend)
 
     @staticmethod
