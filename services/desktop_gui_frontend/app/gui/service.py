@@ -46,7 +46,7 @@ def clear_wrong_employee_data(window: sg.Window) -> None:
 def add_employee(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        storage_service: storage.service.StorageService
 ) -> None:
     @wrong_data_exception_handler(
         app.service.exceptions.WrongData,
@@ -61,7 +61,7 @@ def add_employee(
     )
     def call_add_employee() -> storage.schema.Employee:
         employee = user_input.Employee.get_employee(values)
-        return storage.service.add_employee(employee, backend)
+        return storage_service.add_employee(employee)
 
     window.perform_long_operation(call_add_employee, end_key=events.Misc.NON_EXISTENT)
 
@@ -69,7 +69,7 @@ def add_employee(
 def update_employee(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        storage_service: storage.service.StorageService
 ) -> None:
     if not values[events.EmployeeEvent.EMPLOYEE_SELECTED]:
         return
@@ -90,7 +90,7 @@ def update_employee(
         events.EmployeeEvent.UPDATE_EMPLOYEE_FAIL
     )
     def call_update_employee() -> storage.schema.Employee:
-        return storage.service.update_employee(employee, employee_id, backend)
+        return storage_service.update_employee(employee, employee_id)
 
     window.perform_long_operation(call_update_employee, end_key=events.Misc.NON_EXISTENT)
 
@@ -98,7 +98,7 @@ def update_employee(
 def delete_employees(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        storage_service: storage.service.StorageService
 ) -> None:
     selected_employees_ids_in_list = values[events.EmployeeEvent.EMPLOYEE_SELECTED]
     all_employees_in_list = window[events.EmployeeEvent.EMPLOYEE_SELECTED].get()
@@ -111,7 +111,7 @@ def delete_employees(
         events.EmployeeEvent.DELETE_EMPLOYEES_FAIL
     )
     def call_delete_employees() -> list[storage.schema.Employee]:
-        return storage.service.delete_employees(selected_employees_ids, backend)
+        return storage_service.delete_employees(selected_employees_ids)
 
     window.perform_long_operation(call_delete_employees, end_key=events.Misc.NON_EXISTENT)
 
@@ -185,7 +185,7 @@ def search_employees(
     window[events.EmployeeEvent.EMPLOYEE_SELECTED].update(select_rows=matched_entries_numbers)
 
 
-def update_employees_list(window: sg.Window, backend: storage.backend.StorageBackend) -> None:
+def update_employees_list(window: sg.Window, storage_service: storage.service.StorageService) -> None:
     @events.raise_status_events(
         window,
         events.EmployeeEvent.GET_EMPLOYEES_SUCCESS,
@@ -193,7 +193,7 @@ def update_employees_list(window: sg.Window, backend: storage.backend.StorageBac
         events.EmployeeEvent.GET_EMPLOYEES_FAIL
     )
     def call_get_employees() -> list[storage.schema.Employee]:
-        return storage.service.get_employees(0, 99999, backend)
+        return storage_service.get_employees(0, 99999)
 
     window.perform_long_operation(call_get_employees, end_key=events.Misc.NON_EXISTENT)
 
@@ -302,7 +302,7 @@ def open_forecasts_window(window: sg.Window) -> sg.Window:
 def show_max_work_duration_employees(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: statistics.backend.StatisticsBackend
+        statistics_service: statistics.service.StatisticsService
 ) -> None:
     employees_count = values[elements.Statistics.MAX_WORK_DURATION_EMPLOYEES_COUNT]
 
@@ -313,7 +313,7 @@ def show_max_work_duration_employees(
         events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_FAIL
     )
     def call_get_max_work_duration_employees() -> list[storage.schema.Employee]:
-        return app.service.statistics.service.get_max_work_duration_employees(employees_count, backend)
+        return statistics_service.get_max_work_duration_employees(employees_count)
 
     window.perform_long_operation(call_get_max_work_duration_employees, end_key=events.Misc.NON_EXISTENT)
 
@@ -360,7 +360,7 @@ def show_max_work_duration_employees_graph(window: sg.Window, values: dict[Key, 
 def show_highest_paid_employees(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: statistics.backend.StatisticsBackend
+        statistics_service: statistics.service.StatisticsService
 ) -> None:
     employees_count = values[elements.Statistics.HIGHEST_PAID_EMPLOYEES_COUNT]
 
@@ -371,7 +371,7 @@ def show_highest_paid_employees(
         events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_FAIL
     )
     def call_get_highest_paid_employees() -> list[storage.schema.Employee]:
-        return app.service.statistics.service.get_highest_paid_employees(employees_count, backend)
+        return statistics_service.get_highest_paid_employees(employees_count)
 
     window.perform_long_operation(call_get_highest_paid_employees, end_key=events.Misc.NON_EXISTENT)
 
@@ -432,7 +432,7 @@ def show_highest_paid_employees_graph(window: sg.Window, values: dict[Key, Any])
 def show_title_employees_history_growth(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: statistics.backend.StatisticsBackend
+        statistics_service: statistics.service.StatisticsService
 ) -> None:
 
     title_name = values[elements.Statistics.TITLE_EMPLOYEES_GROWTH_HISTORY_TITLE_NAME]
@@ -444,7 +444,7 @@ def show_title_employees_history_growth(
         events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL
     )
     def call_get_title_employees_history_growth() -> dict[int, int]:
-        return app.service.statistics.service.get_title_employees_history_growth(title_name, backend)
+        return statistics_service.get_title_employees_history_growth(title_name)
 
     window.perform_long_operation(call_get_title_employees_history_growth, end_key=events.Misc.NON_EXISTENT)
 
@@ -490,7 +490,7 @@ def show_title_employees_history_growth_graph(window: sg.Window, values: dict[Ke
 def show_title_employees_forecast_growth(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: forecasts.backend.ForecastsBackend
+        forecasts_service: forecasts.service.ForecastsService
 ) -> None:
 
     title_name = values[elements.Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_TITLE_NAME]
@@ -503,7 +503,7 @@ def show_title_employees_forecast_growth(
         events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL
     )
     def call_get_title_employees_forecast_growth() -> dict[int, int]:
-        return app.service.forecasts.service.get_title_employees_forecast_growth(title_name, years_count, backend)
+        return forecasts_service.get_title_employees_forecast_growth(title_name, years_count)
 
     window.perform_long_operation(call_get_title_employees_forecast_growth, end_key=events.Misc.NON_EXISTENT)
 
@@ -549,7 +549,7 @@ def show_title_employees_forecast_growth_graph(window: sg.Window, values: dict[K
 def show_employees_distribution_by_topics(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        storage_service: storage.service.StorageService
 ) -> None:
 
     @events.raise_status_events(
@@ -559,7 +559,7 @@ def show_employees_distribution_by_topics(
         events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_FAIL
     )
     def call_get_employees() -> list[storage.schema.Employee]:
-        return storage.service.get_employees(0, 9999999999, backend)
+        return storage_service.get_employees(0, 9999999999)
 
     window.perform_long_operation(call_get_employees, end_key=events.Misc.NON_EXISTENT)
 
@@ -611,7 +611,7 @@ def show_employees_distribution_by_topics_graph(window: sg.Window, values: dict[
 def show_employees_distribution_by_titles(
         window: sg.Window,
         values: dict[Key, Any],
-        backend: storage.backend.StorageBackend
+        storage_service: storage.service.StorageService
 ) -> None:
 
     @events.raise_status_events(
@@ -621,7 +621,7 @@ def show_employees_distribution_by_titles(
         events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_FAIL
     )
     def call_get_employees() -> list[storage.schema.Employee]:
-        return storage.service.get_employees(0, 9999999999, backend)
+        return storage_service.get_employees(0, 9999999999)
 
     window.perform_long_operation(call_get_employees, end_key=events.Misc.NON_EXISTENT)
 

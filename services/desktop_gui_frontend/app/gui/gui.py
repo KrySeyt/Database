@@ -2,6 +2,7 @@ from typing import Callable
 
 import PySimpleGUI as sg
 
+from ..service import ServiceFactory
 from . import events_handlers
 from . import events
 from . import layouts
@@ -12,9 +13,14 @@ sg.theme("BluePurple")
 
 
 class GUI:
-    def __init__(self, windows_factory: Callable[..., sg.Window]) -> None:
+    def __init__(
+            self,
+            windows_factory: Callable[..., sg.Window],
+            events_handler: events_handlers.EventsHandler
+    ) -> None:
+
         self.windows_factory = windows_factory
-        self.events_handler = events_handlers.EventsHandler()
+        self.events_handler = events_handler
         self.main_window_layout = layouts.MAIN_WINDOW_LAYOUT
 
     def start(self) -> None:

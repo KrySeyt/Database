@@ -1,9 +1,10 @@
 import requests
 
 from ..exceptions import BackendConnectionError, BackendServerError
+from .service import ForecastsImp
 
 
-class ForecastsBackend:
+class ForecastsBackend(ForecastsImp):
     def __init__(self, backend_url: str) -> None:
         self.backend_url = backend_url
 

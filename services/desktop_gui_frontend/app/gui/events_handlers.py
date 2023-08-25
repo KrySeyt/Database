@@ -2,16 +2,16 @@ from typing import Any
 
 import PySimpleGUI as sg
 
-from app.config import get_settings
-from app.service.storage.dependencies import get_storage_backend
-from app.service.statistics.dependencies import get_statistics_backend
-from app.service.forecasts.dependencies import get_forecasts_backend
+from app.service import ServiceFactory
 from .keys import Key
 from . import events
 from . import service
 
 
 class EventsHandler:
+    def __init__(self, service_factory: ServiceFactory) -> None:
+        self.service_factory = service_factory
+
     def handle_event(
             self,
             window: sg.Window,
@@ -155,8 +155,8 @@ class EventsHandler:
             case events.WindowEvent.CLOSE:
                 self._exit_handler(window, values)
 
-    @staticmethod
     def _get_employees_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
@@ -164,42 +164,42 @@ class EventsHandler:
         service.show_employees(window, values)
         service.show_success(window)
 
-    @staticmethod
     def _get_employees_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _get_employees_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _add_employee_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
         service.clear_wrong_employee_data(window)
 
-        backend = get_storage_backend(get_settings().backend_location)
-        service.add_employee(window, values, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.add_employee(window, values, storage_service)
 
-    @staticmethod
     def _add_employee_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
         service.show_success(window)
-        backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees_list(window, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.update_employees_list(window, storage_service)
 
     @staticmethod
     def _add_employee_fail_handler(
@@ -217,131 +217,132 @@ class EventsHandler:
 
         service.show_processing(window)
 
-    @staticmethod
     def _update_employee_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
         service.clear_wrong_employee_data(window)
 
-        backend = get_storage_backend(get_settings().backend_location)
-        service.update_employee(window, values, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.update_employee(window, values, storage_service)
 
-    @staticmethod
     def _update_employee_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_success(window)
-        backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees_list(window, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.update_employees_list(window, storage_service)
 
-    @staticmethod
     def _update_employee_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _update_employee_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
+
     def _delete_employees_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
-        service.delete_employees(window, values, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.delete_employees(window, values, storage_service)
 
-    @staticmethod
     def _delete_employees_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_success(window)
-        backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees_list(window, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.update_employees_list(window, storage_service)
 
-    @staticmethod
     def _delete_employees_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _delete_employees_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _search_employees_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.search_employees(window, values)
 
-    @staticmethod
     def _startup_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
-        service.update_employees_list(window, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.update_employees_list(window, storage_service)
 
-    @staticmethod
     def _employee_entry_selected_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
-        
+
         if values[events.EmployeeEvent.EMPLOYEE_SELECTED]:
             service.insert_selected_employee_to_form(window, values)
 
-    @staticmethod
     def _open_statistics_window_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
         service.open_statistics_window(window)
 
-    @staticmethod
     def _open_forecasts_window_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
         service.open_forecasts_window(window)
 
-    @staticmethod
     def _show_max_work_duration_employees_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_statistics_backend(get_settings().backend_location)
-        service.show_max_work_duration_employees(window, values, backend)
+        statistics_service = self.service_factory.create_statistics_service()
+        service.show_max_work_duration_employees(window, values, statistics_service)
 
-    @staticmethod
     def _show_max_work_duration_employees_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
@@ -349,33 +350,33 @@ class EventsHandler:
         service.show_success(window)
         service.show_max_work_duration_employees_graph(window, values)
 
-    @staticmethod
     def _show_max_work_duration_employees_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _show_max_work_duration_employees_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _show_highest_paid_employees_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_statistics_backend(get_settings().backend_location)
-        service.show_highest_paid_employees(window, values, backend)
+        statistics_service = self.service_factory.create_statistics_service()
+        service.show_highest_paid_employees(window, values, statistics_service)
 
-    @staticmethod
     def _show_highest_paid_employees_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
@@ -383,33 +384,33 @@ class EventsHandler:
         service.show_success(window)
         service.show_highest_paid_employees_graph(window, values)
 
-    @staticmethod
     def _show_highest_paid_employees_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _show_highest_paid_employees_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _show_title_employees_growth_history_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_statistics_backend(get_settings().backend_location)
-        service.show_title_employees_history_growth(window, values, backend)
+        statistics_service = self.service_factory.create_statistics_service()
+        service.show_title_employees_history_growth(window, values, statistics_service)
 
-    @staticmethod
     def _show_title_employees_growth_history_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
@@ -417,33 +418,33 @@ class EventsHandler:
         service.show_success(window)
         service.show_title_employees_history_growth_graph(window, values)
 
-    @staticmethod
     def _show_title_employees_growth_history_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _show_title_employees_growth_history_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _show_employees_distribution_by_titles_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
-        service.show_employees_distribution_by_titles(window, values, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.show_employees_distribution_by_titles(window, values, storage_service)
 
-    @staticmethod
     def _show_employees_distribution_by_titles_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
@@ -451,33 +452,33 @@ class EventsHandler:
         service.show_success(window)
         service.show_employees_distribution_by_titles_graph(window, values)
 
-    @staticmethod
     def _show_employees_distribution_by_titles_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _show_employees_distribution_by_titles_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _show_employees_distribution_by_topics_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_storage_backend(get_settings().backend_location)
-        service.show_employees_distribution_by_topics(window, values, backend)
+        storage_service = self.service_factory.create_storage_service()
+        service.show_employees_distribution_by_topics(window, values, storage_service)
 
-    @staticmethod
     def _show_employees_distribution_by_topics_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
@@ -485,33 +486,33 @@ class EventsHandler:
         service.show_success(window)
         service.show_employees_distribution_by_topics_graph(window, values)
 
-    @staticmethod
     def _show_employees_distribution_by_topics_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _show_employees_distribution_by_topics_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _show_title_employees_growth_forecast_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:
 
-        backend = get_forecasts_backend(get_settings().backend_location)
-        service.show_title_employees_forecast_growth(window, values, backend)
+        forecasts_service = self.service_factory.create_forecasts_service()
+        service.show_title_employees_forecast_growth(window, values, forecasts_service)
 
-    @staticmethod
     def _show_title_employees_growth_forecast_success_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
@@ -519,24 +520,24 @@ class EventsHandler:
         service.show_success(window)
         service.show_employees_distribution_by_titles_graph(window, values)
 
-    @staticmethod
     def _show_title_employees_growth_forecast_processing_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_processing(window)
 
-    @staticmethod
     def _show_title_employees_growth_forecast_fail_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any],
     ) -> None:
 
         service.show_fail(window)
 
-    @staticmethod
     def _exit_handler(
+            self,
             window: sg.Window,
             values: dict[Key, Any]
     ) -> None:

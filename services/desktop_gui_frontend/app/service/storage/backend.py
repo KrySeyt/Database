@@ -3,10 +3,11 @@ import http
 import requests
 
 from . import schema
+from .service import StorageImp
 from ..exceptions import BackendConnectionError, BackendServerError, WrongData
 
 
-class StorageBackend:
+class StorageBackend(StorageImp):
     def __init__(self, backend_url: str) -> None:
         self.backend_url = backend_url
 

@@ -3,10 +3,11 @@ import http
 import requests
 
 from ..storage import schema
-from ..exceptions import BackendConnectionError, BackendServerError, WrongData
+from ..exceptions import BackendConnectionError, BackendServerError
+from .service import StatisticsImp
 
 
-class StatisticsBackend:
+class StatisticsBackend(StatisticsImp):
     def __init__(self, backend_url: str) -> None:
         self.backend_url = backend_url
 
