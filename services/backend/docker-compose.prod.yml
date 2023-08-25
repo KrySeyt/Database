@@ -13,7 +13,7 @@ services:
       postgres:
         condition: service_healthy
 
-  backend-reverse-proxy:
+  backend_reverse_proxy:
     image: nginx:latest
     ports:
       - "80:80"

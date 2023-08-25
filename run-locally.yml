@@ -5,34 +5,30 @@ services:
     extends:
       file: services/backend/docker-compose.prod.yml
       service: backend
-    networks:
-      - network
     healthcheck:
       test: ["CMD", "curl", "http://localhost:8000"]
       interval: 3s
       timeout: 3s
       retries: 10
 
+  backend_reverse_proxy:
+    extends: 
+      file: services/backend/docker-compose.prod.yml
+      service: backend_reverse_proxy
+    volumes:
+      - ${PWD}/services/backend/nginx.conf:/etc/nginx/nginx.conf
+
   postgres:
     extends:
       file: services/backend/docker-compose.prod.yml
       service: postgres
-    networks:
-      - network
 
   desktop_gui_frontend:
     extends:
       file: services/desktop_gui_frontend/docker-compose.prod.yml
       service: desktop_gui_frontend
-    networks:
-      - network
     environment:
-      - DESKTOP_GUI_FRONTEND__BACKEND_LOCATION=http://backend
+      - DESKTOP_GUI_FRONTEND__BACKEND_LOCATION=http://backend:8000
     depends_on:
       backend:
         condition: service_healthy
-
-
-networks:
-  network:
-    driver: bridge
