@@ -8,8 +8,6 @@ from database_app.service.storage.exceptions import EmployeeServiceNumberNotUniq
     EmployeeIDDoesntExist
 from database_app.service.storage.exceptions_handlers import employee_service_number_not_unique_handler, \
     employee_id_doesnt_exist_handler
-from database_app.service.exceptions_handlers import no_employees_handler
-from database_app.service.exceptions import NoEmployeesExist
 
 
 app = FastAPI()
@@ -20,6 +18,5 @@ app.include_router(forecasts_router)
 
 app.add_exception_handler(EmployeeServiceNumberNotUnique, employee_service_number_not_unique_handler)
 app.add_exception_handler(EmployeeIDDoesntExist, employee_id_doesnt_exist_handler)
-app.add_exception_handler(NoEmployeesExist, no_employees_handler)
 
 app.dependency_overrides[get_db_stub] = get_db

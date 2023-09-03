@@ -6,7 +6,6 @@ from fastapi import APIRouter, Depends, status, Path, Body
 from database_app.service.storage import schema as storage_schema
 from ...dependencies import get_db_stub
 from . import service
-from .. import exceptions
 
 router = APIRouter(tags=["Statistics"], prefix="/statistics")
 
@@ -21,8 +20,6 @@ async def get_highest_paid_employees(
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> list[storage_schema.Employee]:
     employees = await service.get_highest_paid_employees(db, employees_count)
-    if not employees:
-        raise exceptions.NoEmployeesExist("Not single employee exist")
     return employees
 
 
@@ -36,8 +33,6 @@ async def get_work_longest_employees(
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> list[storage_schema.Employee]:
     employees = await service.get_work_longest_employee(db, employees_count)
-    if not employees:
-        raise exceptions.NoEmployeesExist("Not single employee exist")
     return employees
 
 
@@ -62,6 +57,4 @@ async def get_title_employees_growth(
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> dict[int, int]:
     employees_growth = await service.get_title_employees_growth_history(db, title)
-    if not employees_growth:
-        raise exceptions.NoEmployeesExist("Not single employee exist")
     return employees_growth

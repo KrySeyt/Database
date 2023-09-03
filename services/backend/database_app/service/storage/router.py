@@ -1,12 +1,12 @@
 from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, Path, status, Query, Body
+from fastapi import APIRouter, Depends, Query, status
 
 from database_app.service.storage import schema, service
 from ...dependencies import get_db_stub
 from ...schema import ErrorResponseBody
-from .dependencies import employee_service_number_unique
+from .dependencies import employee_service_number_unique, employee_id_exists
 from . import exceptions
 
 
@@ -19,7 +19,7 @@ router = APIRouter(tags=["Storage"], prefix="/storage")
     status_code=status.HTTP_201_CREATED,
 )
 async def create_employee(
-        employee: Annotated[schema.EmployeeIn, Depends(employee_service_number_unique)],
+        employee: Annotated[schema.EmployeeIn, Depends(employee_service_number_unique)],  # TODO: Do same for UPDATE
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:
     return await service.create_employee(db, employee)
@@ -33,12 +33,11 @@ async def create_employee(
     }
 )
 async def get_employee(
-        employee_id: Annotated[int, Path()],
+        employee_id: Annotated[int, Depends(employee_id_exists)],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:
     employee = await service.get_employee(db, employee_id)
-    if not employee:
-        raise exceptions.EmployeeIDDoesntExist("Employee with this ID doesn't exist")
+    assert employee
     return employee
 
 
@@ -62,13 +61,12 @@ async def get_employees(
     }
 )
 async def update_employee(
-        employee_in: Annotated[schema.EmployeeIn, Body()],
-        employee_id: Annotated[int, Path()],
+        employee_in: Annotated[schema.EmployeeIn, Depends(employee_service_number_unique)],
+        employee_id: Annotated[int, Depends(employee_id_exists)],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:
     employee = await service.update_employee(db, employee_in, employee_id)
-    if not employee:
-        raise exceptions.EmployeeIDDoesntExist("Employee with this ID doesn't exist")
+    assert employee
     return employee
 
 
@@ -80,12 +78,11 @@ async def update_employee(
     }
 )
 async def delete_employee(
-        employee_id: Annotated[int, Path()],
+        employee_id: Annotated[int, Depends(employee_id_exists)],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:
     employee = await service.delete_employee(db, employee_id)
-    if not employee:
-        raise exceptions.EmployeeIDDoesntExist("Employee with this ID doesn't exist")
+    assert employee
     return employee
 
 
