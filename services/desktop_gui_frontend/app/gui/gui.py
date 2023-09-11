@@ -1,11 +1,6 @@
-from typing import Callable
-
 import PySimpleGUI as sg
 
-from ..service import ServiceFactory
-from . import events_handlers
 from . import events
-from . import layouts
 from . import windows
 
 
@@ -13,36 +8,39 @@ sg.theme("BluePurple")
 
 
 class GUI:
-    def __init__(
-            self,
-            windows_factory: Callable[..., sg.Window],
-            events_handler: events_handlers.EventsHandler
-    ) -> None:
-
+    def __init__(self, windows_factory: windows.WindowsFactory) -> None:
+        self.windows: list[windows.AppWindow] = []
         self.windows_factory = windows_factory
-        self.events_handler = events_handler
-        self.main_window_layout = layouts.MAIN_WINDOW_LAYOUT
 
     def start(self) -> None:
-        window = self._run_main_window()
-        window.write_event_value(events.WindowEvent.OPEN, None)
-
+        self.create_main_window()
         self._run_input_handler()
 
-    def _run_main_window(self) -> sg.Window:
-        main_window = self.windows_factory(
-            "Database",
-            self.main_window_layout,
-            location=(200, 200),
-            size=(1000, 800),
-            finalize=True,
-            resizable=True
-        )
+    def exit(self) -> None:
+        for window in self.windows:
+            window.close()
+
+    def create_main_window(self) -> windows.MainWindow:
+        main_window = self.windows_factory.create_main_window(self)
+        self.windows.append(main_window)
+        main_window.write_event_value(events.WindowEvent.OPEN, None)
         return main_window
+
+    def create_statistics_window(self) -> windows.StatisticsWindow:
+        statistics_window = self.windows_factory.create_statistics_window(self)
+        self.windows.append(statistics_window)
+        statistics_window.write_event_value(events.WindowEvent.OPEN, None)
+        return statistics_window
+
+    def create_diagram_window(self, title: str) -> windows.DiagramWindow:
+        diagram_window = self.windows_factory.create_diagram_window(title, self)
+        self.windows.append(diagram_window)
+        diagram_window.write_event_value(events.WindowEvent.OPEN, None)
+        return diagram_window
 
     def _run_input_handler(self) -> None:
         while True:
-            window, event, values = windows.HierarchicalWindow.read_all_windows()
+            window, event, values = windows.read_all_windows()
 
             if __debug__:
                 print(window, event, values)
@@ -53,6 +51,6 @@ class GUI:
             if values is None:
                 return
 
-            event = event or events.WindowEvent.CLOSE
+            event = event or events.WindowEvent.EXIT
 
-            self.events_handler.handle_event(window, event, values)
+            window.handle_event(event, values)

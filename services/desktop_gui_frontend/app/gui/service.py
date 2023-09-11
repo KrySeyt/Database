@@ -21,7 +21,7 @@ from . import elements
 from . import user_input
 from . import windows
 from . import layouts
-from .errors_handlers import wrong_data_exception_handler
+
 
 matplotlib.use("TkAgg")
 
@@ -55,9 +55,9 @@ def add_employee(
     )
     @events.raise_status_events(
         window,
-        events.EmployeeEvent.ADD_EMPLOYEE_SUCCESS,
-        events.EmployeeEvent.ADD_EMPLOYEE_PROCESSING,
-        events.EmployeeEvent.ADD_EMPLOYEE_FAIL
+        events.EmployeeEvent.ADD_EMPLOYEE_SUCCESS_OLD,
+        events.EmployeeEvent.ADD_EMPLOYEE_PROCESSING_OLD,
+        events.EmployeeEvent.ADD_EMPLOYEE_FAIL_OLD
     )
     def call_add_employee() -> storage.schema.Employee:
         employee = user_input.Employee.get_employee(values)
@@ -85,9 +85,9 @@ def update_employee(
     )
     @events.raise_status_events(
         window,
-        events.EmployeeEvent.UPDATE_EMPLOYEE_SUCCESS,
-        events.EmployeeEvent.UPDATE_EMPLOYEE_PROCESSING,
-        events.EmployeeEvent.UPDATE_EMPLOYEE_FAIL
+        events.EmployeeEvent.UPDATE_EMPLOYEE_SUCCESS_OLD,
+        events.EmployeeEvent.UPDATE_EMPLOYEE_PROCESSING_OLD,
+        events.EmployeeEvent.UPDATE_EMPLOYEE_FAIL_OLD
     )
     def call_update_employee() -> storage.schema.Employee:
         return storage_service.update_employee(employee, employee_id)
@@ -106,8 +106,8 @@ def delete_employees(
 
     @events.raise_status_events(
         window,
-        events.EmployeeEvent.DELETE_EMPLOYEES_SUCCESS,
-        events.EmployeeEvent.DELETE_EMPLOYEES_PROCESSING,
+        events.EmployeeEvent.DELETE_EMPLOYEES_SUCCESS_OLD,
+        events.EmployeeEvent.DELETE_EMPLOYEES_PROCESSING_OLD,
         events.EmployeeEvent.DELETE_EMPLOYEES_FAIL
     )
     def call_delete_employees() -> list[storage.schema.Employee]:
@@ -188,9 +188,9 @@ def search_employees(
 def update_employees_list(window: sg.Window, storage_service: storage.service.StorageService) -> None:
     @events.raise_status_events(
         window,
-        events.EmployeeEvent.GET_EMPLOYEES_SUCCESS,
-        events.EmployeeEvent.GET_EMPLOYEES_PROCESSING,
-        events.EmployeeEvent.GET_EMPLOYEES_FAIL
+        events.EmployeeEvent.GET_EMPLOYEES_SUCCESS_OLD,
+        events.EmployeeEvent.GET_EMPLOYEES_PROCESSING_OLD,
+        events.EmployeeEvent.GET_EMPLOYEES_FAIL_OLD
     )
     def call_get_employees() -> list[storage.schema.Employee]:
         return storage_service.get_employees(0, 99999)
@@ -199,7 +199,7 @@ def update_employees_list(window: sg.Window, storage_service: storage.service.St
 
 
 def show_employees(window: sg.Window, values: dict[Key, Any]) -> None:
-    employees = values[events.EmployeeEvent.GET_EMPLOYEES_SUCCESS]
+    employees = values[events.EmployeeEvent.GET_EMPLOYEES_SUCCESS_OLD]
     employees_out = [storage.schema.EmployeeOut(**i.dict()) for i in employees]
 
     table_rows = []
@@ -308,9 +308,9 @@ def show_max_work_duration_employees(
 
     @events.raise_status_events(
         window,
-        events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_SUCCESS,
-        events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_PROCESSING,
-        events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_FAIL
+        events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_SUCCESS_OLD,
+        events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_PROCESSING_OLD,
+        events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_FAIL_OLD
     )
     def call_get_max_work_duration_employees() -> list[storage.schema.Employee]:
         return statistics_service.get_max_work_duration_employees(employees_count)
@@ -322,7 +322,7 @@ def show_max_work_duration_employees_graph(window: sg.Window, values: dict[Key, 
     if not isinstance(window, windows.HierarchicalWindow):
         raise NotImplementedError
 
-    max_work_duration_employees = values[events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_SUCCESS]
+    max_work_duration_employees = values[events.StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES_SUCCESS_OLD]
 
     today = datetime.date.today()
     employees_names = []
@@ -366,9 +366,9 @@ def show_highest_paid_employees(
 
     @events.raise_status_events(
         window,
-        events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_SUCCESS,
-        events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_PROCESSING,
-        events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_FAIL
+        events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_SUCCESS_OLD,
+        events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_PROCESSING_OLD,
+        events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_FAIL_OLD
     )
     def call_get_highest_paid_employees() -> list[storage.schema.Employee]:
         return statistics_service.get_highest_paid_employees(employees_count)
@@ -380,7 +380,7 @@ def show_highest_paid_employees_graph(window: sg.Window, values: dict[Key, Any])
     if not isinstance(window, windows.HierarchicalWindow):
         raise NotImplementedError
 
-    highest_paid_employees = values[events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_SUCCESS]
+    highest_paid_employees = values[events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_SUCCESS_OLD]
     print(len(highest_paid_employees))
 
     employees_names = []
@@ -439,9 +439,9 @@ def show_title_employees_history_growth(
 
     @events.raise_status_events(
         window,
-        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_SUCCESS,
-        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_PROCESSING,
-        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL
+        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_SUCCESS_OLD,
+        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_PROCESSING_OLD,
+        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL_OLD
     )
     def call_get_title_employees_history_growth() -> dict[int, int]:
         return statistics_service.get_title_employees_history_growth(title_name)
@@ -453,7 +453,7 @@ def show_title_employees_history_growth_graph(window: sg.Window, values: dict[Ke
     if not isinstance(window, windows.HierarchicalWindow):
         raise NotImplementedError
 
-    titles_employees_growth_history = values[events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_SUCCESS]
+    titles_employees_growth_history = values[events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_SUCCESS_OLD]
 
     if not titles_employees_growth_history:
         return
@@ -498,9 +498,9 @@ def show_title_employees_forecast_growth(
 
     @events.raise_status_events(
         window,
-        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_SUCCESS,
-        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_PROCESSING,
-        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL
+        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_SUCCESS_OLD,
+        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_PROCESSING_OLD,
+        events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_FAIL_OLD
     )
     def call_get_title_employees_forecast_growth() -> dict[int, int]:
         return forecasts_service.get_title_employees_forecast_growth(title_name, years_count)
@@ -512,7 +512,7 @@ def show_title_employees_forecast_growth_graph(window: sg.Window, values: dict[K
     if not isinstance(window, windows.HierarchicalWindow):
         raise NotImplementedError
 
-    titles_employees_growth_forecast = values[events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_SUCCESS]
+    titles_employees_growth_forecast = values[events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_SUCCESS_OLD]
 
     if not titles_employees_growth_forecast:
         return
@@ -554,9 +554,9 @@ def show_employees_distribution_by_topics(
 
     @events.raise_status_events(
         window,
-        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_SUCCESS,
-        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_PROCESSING,
-        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_FAIL
+        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_SUCCESS_OLD,
+        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_PROCESSING_OLD,
+        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_FAIL_OLD
     )
     def call_get_employees() -> list[storage.schema.Employee]:
         return storage_service.get_employees(0, 9999999999)
@@ -568,7 +568,7 @@ def show_employees_distribution_by_topics_graph(window: sg.Window, values: dict[
     if not isinstance(window, windows.HierarchicalWindow):
         raise NotImplementedError
 
-    employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_SUCCESS]
+    employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_SUCCESS_OLD]
 
     if not employees:
         return
@@ -616,9 +616,9 @@ def show_employees_distribution_by_titles(
 
     @events.raise_status_events(
         window,
-        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_SUCCESS,
-        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_PROCESSING,
-        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_FAIL
+        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_SUCCESS_OLD,
+        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_PROCESSING_OLD,
+        events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_FAIL_OLD
     )
     def call_get_employees() -> list[storage.schema.Employee]:
         return storage_service.get_employees(0, 9999999999)
@@ -630,7 +630,7 @@ def show_employees_distribution_by_titles_graph(window: sg.Window, values: dict[
     if not isinstance(window, windows.HierarchicalWindow):
         raise NotImplementedError
 
-    employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_SUCCESS]
+    employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_SUCCESS_OLD]
 
     if not employees:
         return

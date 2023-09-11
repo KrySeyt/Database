@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-
+from typing import Any
 
 from ..exceptions import BackendConnectionError
 from . import schema
+from .. import mixins
 
 
 class StorageImp(ABC):
@@ -27,36 +28,29 @@ class StorageImp(ABC):
         raise NotImplementedError
 
 
-class StorageService:
-    def __init__(self, implementation: StorageImp) -> None:
+class StorageService(mixins.ObservableMixin):
+    def __init__(self, implementation: StorageImp, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
         self.implementation = implementation
 
     def add_employee(self, employee_in: schema.EmployeeIn) -> schema.Employee:
-        try:
-            return self.implementation.add_employee(employee_in)
-        except BackendConnectionError:
-            raise
+        employee = self.implementation.add_employee(employee_in)
+        self.notify_observers()
+        return employee
 
     def get_employees(self, skip: int, limit: int) -> list[schema.Employee]:
-        try:
-            return self.implementation.get_employees(skip, limit)
-        except BackendConnectionError:
-            raise
+        employees = self.implementation.get_employees(skip, limit)
+        return employees
 
     def update_employee(self, employee_in: schema.EmployeeIn, employee_id: int) -> schema.Employee:
-        try:
-            return self.implementation.update_employee(employee_in, employee_id)
-        except BackendConnectionError:
-            raise
+        employee = self.implementation.update_employee(employee_in, employee_id)
+        self.notify_observers()
+        return employee
 
     def delete_employees(self, employees_ids: list[int]) -> list[schema.Employee]:
-        try:
-            return self.implementation.delete_employees(employees_ids)
-        except BackendConnectionError:
-            raise
+        employees = self.implementation.delete_employees(employees_ids)
+        self.notify_observers()
+        return employees
 
     def search_employees(self, employee_search_model: schema.EmployeeSearchModel) -> list[schema.Employee]:
-        try:
-            return self.implementation.search_employees(employee_search_model)
-        except BackendConnectionError:
-            raise
+        return self.implementation.search_employees(employee_search_model)

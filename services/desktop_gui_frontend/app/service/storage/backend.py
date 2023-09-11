@@ -1,10 +1,12 @@
 import http
+from typing import Any
 
 import requests
 
 from . import schema
 from .service import StorageImp
-from ..exceptions import BackendConnectionError, BackendServerError, WrongData
+from .exceptions import WrongEmployeeData
+from ..exceptions import BackendConnectionError, BackendServerError
 
 
 class StorageBackend(StorageImp):
@@ -33,12 +35,15 @@ class StorageBackend(StorageImp):
             if response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY:
                 assert "detail" in response.json().keys(), "No key \"Detail\" in error logs"
 
-                errors_info = []
+                errors_places: list[tuple[Any, ...]] = []
+                messages: list[str] = []
+                errors_types: list[str] = []
                 for err_info in response.json()["detail"]:
-                    print(err_info)
-                    errors_info.append(schema.BackendWrongDataInfo(**err_info))
+                    errors_places.append(tuple(err_info["loc"][1:]))
+                    messages.append(err_info["msg"])
+                    errors_types.append(err_info["type"])
 
-                raise WrongData(errors_info)
+                raise WrongEmployeeData(errors_places, messages, errors_types)
 
         return schema.Employee.parse_obj(response.json())
 
@@ -87,11 +92,15 @@ class StorageBackend(StorageImp):
         if response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY:
             assert "detail" in response.json().keys(), "No key \"Detail\" in error logs"
 
-            errors_info = []
+            errors_places: list[tuple[Any, ...]] = []
+            messages: list[str] = []
+            errors_types: list[str] = []
             for err_info in response.json()["detail"]:
-                errors_info.append(schema.BackendWrongDataInfo(**err_info))
+                errors_places.append(tuple(err_info["loc"][1:]))
+                messages.append(err_info["msg"])
+                errors_types.append(err_info["type"])
 
-            raise WrongData(errors_info)
+            raise WrongEmployeeData(errors_places, messages, errors_types)
 
         return schema.Employee.parse_obj(response.json())
 

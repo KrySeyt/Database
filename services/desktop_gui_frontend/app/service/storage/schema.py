@@ -1,7 +1,7 @@
 import datetime
 import decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class Base(BaseModel):
@@ -114,6 +114,10 @@ class EmployeeIn(Base):
     post: PostIn
     salary: SalaryIn
     titles: list[TitleIn]
+
+    @validator("employment_date", pre=True)
+    def date_to_str(cls, employment_date: datetime.date) -> str:
+        return str(employment_date)
 
 
 class Employee(EmployeeBase):

@@ -3,8 +3,8 @@
 
 import PySimpleGUI as sg
 
-from .elements import EmployeeForm, Misc, Statistics, Forecasts
-from .events import EmployeeEvent, WindowEvent, StatisticsEvent, ForecastsEvent
+from .elements import EmployeeForm, Misc as ElementsMisc, Statistics, Forecasts, Diagrams
+from .events import EmployeeEvent, WindowEvent, StatisticsEvent, ForecastsEvent, Misc as EventsMisc
 
 MAIN_WINDOW_LAYOUT = [
     [sg.Table(
@@ -41,13 +41,14 @@ MAIN_WINDOW_LAYOUT = [
      sg.Button("Update employee", key=EmployeeEvent.UPDATE_EMPLOYEE),
      sg.Button("Delete employee", key=EmployeeEvent.DELETE_EMPLOYEES),
      sg.Button("Search employee", key=EmployeeEvent.SEARCH_EMPLOYEES),
-     sg.Exit(key=WindowEvent.CLOSE), sg.Text(key=Misc.OPERATION_STATUS_FIELD, visible=False)],
+     sg.Exit(key=WindowEvent.EXIT), sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)],
     [sg.Button("Statistics", key=WindowEvent.OPEN_STATISTICS_WINDOW),
-     sg.Button("Forecasts", key=WindowEvent.OPEN_FORECASTS_WINDOW)]
+     sg.Button("Forecasts", key=WindowEvent.OPEN_FORECASTS_WINDOW)],
+    [sg.Text(visible=False, key=ElementsMisc.MESSAGE_FIELD)]
 ]
 
 STATISTICS_WINDOW_LAYOUT = [
-    [sg.Button("Max work duration", key=StatisticsEvent.SHOW_MAX_WORK_DURATION_EMPLOYEES),
+    [sg.Button("Max work duration", key=StatisticsEvent.SHOW_MAX_WORK_DURATION),
      sg.Text("Count:"), sg.Input(default_text="3", key=Statistics.MAX_WORK_DURATION_EMPLOYEES_COUNT)],
     [sg.Button("Highest paid employees", key=StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES),
      sg.Text("Count:"), sg.Input(default_text="3", key=Statistics.HIGHEST_PAID_EMPLOYEES_COUNT)],
@@ -55,7 +56,11 @@ STATISTICS_WINDOW_LAYOUT = [
      sg.Text("Title name:"), sg.Input(key=Statistics.TITLE_EMPLOYEES_GROWTH_HISTORY_TITLE_NAME)],
     [sg.Button("Employees distribution by titles", key=StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES)],
     [sg.Button("Employees distribution by topics", key=StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS)],
-    [sg.Text(key=Misc.OPERATION_STATUS_FIELD, visible=False)]
+    [sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)]
+]
+
+DIAGRAM_WINDOW = [
+    [sg.Canvas(key=Diagrams.DIAGRAM_CANVAS, expand_x=True, expand_y=True)]
 ]
 
 STATISTICS_MAX_WORK_DURATION_EMPLOYEES_GRAPH_WINDOW = [
@@ -82,7 +87,7 @@ FORECASTS_WINDOW_LAYOUT = [
     [sg.Button("Title employees growth", key=ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST)],
     [sg.Text("Title name:"), sg.Input(key=Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_TITLE_NAME)],
     [sg.Text("Years count:"), sg.Input(key=Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_YEARS_COUNT)],
-    [sg.Text(key=Misc.OPERATION_STATUS_FIELD, visible=False)]
+    [sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)]
 ]
 
 FORECASTS_TITLE_EMPLOYEES_GROWTH_FORECAST_GRAPH_WINDOW = [

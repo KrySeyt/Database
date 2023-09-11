@@ -2,13 +2,16 @@
 
 from enum import Enum
 
+from .keys import Key
 
-class Element(str, Enum):
+
+class Element(Key, Enum):
     pass
 
 
 class Misc(Element):
     OPERATION_STATUS_FIELD = "-OPERATION-STATUS-FIELD"
+    MESSAGE_FIELD = "-MESSAGE-FIELD-"
 
 
 class EmployeeForm(Element):
@@ -28,7 +31,11 @@ class EmployeeForm(Element):
     POST_NAME = "-EMPLOYEE-POST-NAME-"
 
     SALARY_AMOUNT = "-EMPLOYEE-SALARY-AMOUNT-"
-    SALARY_CURRENCY = "-EMPLOYEE-SALARY-CURRENCY-NAME-"
+    SALARY_CURRENCY = "-EMPLOYEE-SALARY-CURRENCY-"
+
+
+class MainWindow(Element):  # TODD: mb remove?
+    EMPLOYEE_FORM = EmployeeForm
 
 
 class Statistics(Element):
@@ -49,3 +56,7 @@ class Forecasts(Element):
     TITLE_EMPLOYEES_GROWTH_FORECAST_TITLE_NAME = "-TITLE-EMPLOYEES-GROWTH-FORECAST-TITLE-NAME-"
     TITLE_EMPLOYEES_GROWTH_FORECAST_YEARS_COUNT = "-TITLE-EMPLOYEES-GROWTH-FORECAST-YEARS-COUNT-"
     TITLE_EMPLOYEES_GROWTH_FORECAST_CANVAS = "-TITLE-EMPLOYEES-GROWTH-FORECAST-CANVAS-"
+
+
+class Diagrams(Element):
+    DIAGRAM_CANVAS = "-DIAGRAM-CANVAS-"

@@ -6,7 +6,15 @@ from .statistics.service import StatisticsService
 from .statistics.backend import StatisticsBackend
 from .forecasts.service import ForecastsService
 from .forecasts.backend import ForecastsBackend
-from ..config import get_settings
+
+
+__all__ = [
+    "ServiceFactory",
+    "BackendServiceFactory",
+    "StorageService",
+    "StatisticsService",
+    "ForecastsService"
+]
 
 
 class ServiceFactory(ABC):
@@ -24,8 +32,8 @@ class ServiceFactory(ABC):
 
 
 class BackendServiceFactory(ServiceFactory):
-    def __init__(self) -> None:
-        self.backend_url = get_settings().backend_location
+    def __init__(self, backend_url: str) -> None:
+        self.backend_url = backend_url
 
     def create_storage_service(self) -> StorageService:
         return StorageService(StorageBackend(self.backend_url))

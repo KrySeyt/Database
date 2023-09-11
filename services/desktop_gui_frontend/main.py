@@ -1,10 +1,13 @@
-from app.gui import gui, windows
+from app.gui import gui
+from app.gui import windows
 from app.service import BackendServiceFactory
-from app.gui.events_handlers import EventsHandler
+from app.config import get_settings
 
 
-app_gui = gui.GUI(
-    windows_factory=windows.HierarchicalWindow,
-    events_handler=EventsHandler(BackendServiceFactory())
-)
+backend_url = get_settings().backend_location
+
+service_factory = BackendServiceFactory(backend_url)
+windows_factory = windows.WindowsFactory(service_factory)
+
+app_gui = gui.GUI(windows_factory)
 app_gui.start()
