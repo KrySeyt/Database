@@ -9,10 +9,10 @@ from dateutil import relativedelta
 
 from ..service.forecasts.exceptions import WrongForecastsData
 from ..service.statistics.exceptions import WrongStatisticsData
-from ..service.storage.exceptions import WrongEmployeeData
 from ..service.storage import schema
 from ..service.exceptions import ServiceError, WrongData
 from ..service import StorageService, StatisticsService, ForecastsService
+from ..diagrams.diagrams import DiagramsFactory
 from .keys import Key
 from . import windows
 from . import events
@@ -20,7 +20,6 @@ from . import elements
 
 
 # TODO: Add commands reverting
-# TODO: Move diagrams building to special class/classes
 
 
 class Command(ABC):
@@ -241,35 +240,17 @@ class ShowMaxWorkDuration(Command):
 
 
 class ShowDiagramMaxWorkDurationDiagram(Command):
+    def __init__(self, diagrams_factory: DiagramsFactory) -> None:
+        self.diagrams_factory = diagrams_factory
+
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         employees = values[events.StatisticsEvent.SHOW_MAX_WORK_DURATION_DIAGRAM]
-
-        if not employees:
+        if employees is None:
             return
 
-        employees_count = len(employees)
-
-        today = datetime.date.today()
-        employees_names = []
-        work_durations_in_month = []
-        for emp in employees:
-            work_timedelta = relativedelta.relativedelta(today, emp.employment_date)
-            work_months = (work_timedelta.years * 12) + work_timedelta.months
-            work_durations_in_month.append(work_months)
-
-            emp_name = f"{emp.name}\n{emp.surname}\n{emp.patronymic}\n({emp.id})"
-            employees_names.append(emp_name)
-
-        max_work_duration = max(work_durations_in_month)
-        figure, ax = plt.subplots(figsize=(3 * employees_count, (0.2 * max_work_duration) + 2),
-                                  layout='constrained')
-        ax.bar(employees_names, work_durations_in_month)
-
-        for i, duration in enumerate(work_durations_in_month):
-            ax.annotate(duration, xy=(i, duration))
-
+        diagram = self.diagrams_factory.create_max_employees_work_duration_diagram(employees)
         diagram_window = event_window.parent_gui.create_diagram_window("Max work duration")
-        diagram_window.draw_figure(figure)
+        diagram_window.draw_diagram(diagram)
 
 
 class ShowHighestPaidEmployees(Command):
@@ -311,48 +292,17 @@ class ShowHighestPaidEmployees(Command):
 
 
 class ShowHighestPaidEmployeesDiagram(Command):
+    def __init__(self, diagrams_factory: DiagramsFactory) -> None:
+        self.diagrams_factory = diagrams_factory
+
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         highest_paid_employees = values[events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_DIAGRAM]
-
-        if not highest_paid_employees:
+        if highest_paid_employees is None:
             return
 
-        employees_names = []
-        employees_salaries_sizes_places: list[int] = []
-        for i in range(len(highest_paid_employees)):
-            if not employees_salaries_sizes_places:
-                employees_salaries_sizes_places.append(1)
-            elif highest_paid_employees[i].salary.amount == highest_paid_employees[i - 1].salary.amount and \
-                    highest_paid_employees[i].salary.currency.name == highest_paid_employees[
-                i - 1].salary.currency.name:
-                employees_salaries_sizes_places.append(employees_salaries_sizes_places[-1])
-            else:
-                employees_salaries_sizes_places.append(employees_salaries_sizes_places[-1] + 1)
-
-        employees_salaries_reprs = []
-        for emp in highest_paid_employees:
-            emp_salary_repr = f"{emp.salary.amount} {emp.salary.currency.name}"
-            employees_salaries_reprs.append(emp_salary_repr)
-
-            emp_name = f"{emp.name}\n{emp.surname}\n{emp.patronymic}\n({emp.id})"
-            employees_names.append(emp_name)
-
-        employees_count = len(highest_paid_employees)
-        figure, ax = plt.subplots(
-            figsize=(3 * employees_count, max(employees_salaries_sizes_places) + 2),
-            layout='constrained'
-        )
-
-        graphs_sizes = [max(employees_salaries_sizes_places) - i + 1 for i in employees_salaries_sizes_places]
-        ax.bar(employees_names, graphs_sizes)
-
-        plt.yticks([])
-
-        for i, salary_place in enumerate(employees_salaries_sizes_places):
-            ax.annotate(employees_salaries_reprs[i], xy=(i, graphs_sizes[i]))
-
+        diagram = self.diagrams_factory.create_highest_paid_employees_diagram(highest_paid_employees)
         diagram_window = event_window.parent_gui.create_diagram_window("Highest paid employees")
-        diagram_window.draw_figure(figure)
+        diagram_window.draw_diagram(diagram)
 
 
 class ShowTitleEmployeesGrowthHistory(Command):
@@ -376,7 +326,7 @@ class ShowTitleEmployeesGrowthHistory(Command):
 
         title_name = get_title_name()
 
-        if not title_name:
+        if title_name is None:
             return
 
         @events.raise_status_events(
@@ -400,30 +350,14 @@ class ShowTitleEmployeesGrowthHistory(Command):
 
 
 class ShowTitleEmployeesGrowthHistoryDiagram(Command):
+    def __init__(self, diagrams_factory: DiagramsFactory) -> None:
+        self.diagrams_factory = diagrams_factory
+
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         titles_employees_growth_history = values[events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_DIAGRAM]
-
-        if not titles_employees_growth_history:
-            return
-
-        years = []
-        employees_growth_per_year = []
-        for year in titles_employees_growth_history:
-            years.append(year)
-            employees_growth_per_year.append(titles_employees_growth_history[year])
-
-        max_employees_growth = max(employees_growth_per_year)
-        figure, ax = plt.subplots(figsize=(20, max_employees_growth + 2), layout='constrained')
-
-        ax.bar(years, employees_growth_per_year)
-        plt.xticks(years)
-        plt.yticks(employees_growth_per_year)
-
-        for i, year in enumerate(years):
-            ax.annotate(employees_growth_per_year[i], xy=(year, employees_growth_per_year[i]))
-
+        diagram = self.diagrams_factory.create_title_employees_growth_diagram(titles_employees_growth_history)
         diagram_window = event_window.parent_gui.create_diagram_window("Title employees count growth history")
-        diagram_window.draw_figure(figure)
+        diagram_window.draw_diagram(diagram)
 
 
 class ShowEmployeesDistributionByTitles(Command):
@@ -449,37 +383,17 @@ class ShowEmployeesDistributionByTitles(Command):
 
 
 class ShowEmployeesDistributionByTitlesDiagram(Command):
+    def __init__(self, diagrams_factory: DiagramsFactory) -> None:
+        self.diagrams_factory = diagrams_factory
+
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_DIAGRAM]
-
-        if not employees:
+        if employees is None:
             return
 
-        emps_count_per_title: Counter[str] = Counter()
-        for emp in employees:
-            for title in emp.titles:
-                emps_count_per_title[title.name] += 1
-
-        figure, ax = plt.subplots(figsize=(
-            20,
-            10
-        ), layout='constrained')
-
-        titles: list[str] = []
-        emps_counts: list[int] = []
-        for title in emps_count_per_title:
-            titles.append(title)
-            emps_counts.append(emps_count_per_title[title])
-
-        ax.bar(titles, emps_counts)
-        plt.xticks(titles)
-        plt.yticks(emps_counts)
-
-        for i, emps_count in enumerate(emps_counts):
-            ax.annotate(emps_count, xy=(i, emps_count))
-
+        diagram = self.diagrams_factory.create_employees_distribution_by_titles_diagram(employees)
         diagram_window = event_window.parent_gui.create_diagram_window("Employees distribution by titles")
-        diagram_window.draw_figure(figure)
+        diagram_window.draw_diagram(diagram)
 
 
 class ShowEmployeesDistributionByTopics(Command):
@@ -505,36 +419,17 @@ class ShowEmployeesDistributionByTopics(Command):
 
 
 class ShowEmployeesDistributionByTopicsDiagram(Command):
+    def __init__(self, diagrams_factory: DiagramsFactory) -> None:
+        self.diagrams_factory = diagrams_factory
+
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_DIAGRAM]
-
-        if not employees:
+        if employees is None:
             return
 
-        emps_count_per_topic: Counter[str] = Counter()
-        for emp in employees:
-            emps_count_per_topic[emp.topic.name] += 1
-
-        figure, ax = plt.subplots(figsize=(
-            20,
-            10
-        ), layout='constrained')
-
-        topics: list[str] = []
-        emps_counts: list[int] = []
-        for topic in emps_count_per_topic:
-            topics.append(topic)
-            emps_counts.append(emps_count_per_topic[topic])
-
-        ax.bar(topics, emps_counts)
-        plt.xticks(topics)
-        plt.yticks(emps_counts)
-
-        for i, emps_count in enumerate(emps_counts):
-            ax.annotate(emps_count, xy=(i, emps_count))
-
+        diagram = self.diagrams_factory.create_employees_distribution_by_topics_diagram(employees)
         diagram_window = event_window.parent_gui.create_diagram_window("Employees distribution by topics")
-        diagram_window.draw_figure(figure)
+        diagram_window.draw_diagram(diagram)
 
 
 class OpenForecastsWindow(Command):
@@ -576,7 +471,7 @@ class ShowTitleEmployeesGrowthForecast(Command):
         title_name = get_title_name()
         years_count = get_years_count()
 
-        if not title_name or not years_count:
+        if title_name is None or years_count is None:
             return
 
         @events.raise_status_events(
@@ -602,27 +497,14 @@ class ShowTitleEmployeesGrowthForecast(Command):
 
 
 class ShowTitleEmployeesGrowthForecastDiagram(Command):
+    def __init__(self, diagrams_factory: DiagramsFactory) -> None:
+        self.diagrams_factory = diagrams_factory
+
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         titles_employees_growth_forecast = values[events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_DIAGRAM]
-
-        if not titles_employees_growth_forecast:
+        if titles_employees_growth_forecast is None:
             return
 
-        years = []
-        employees_growth_per_year = []
-        for year in titles_employees_growth_forecast:
-            years.append(year)
-            employees_growth_per_year.append(titles_employees_growth_forecast[year])
-
-        max_employees_growth = max(employees_growth_per_year)
-        figure, ax = plt.subplots(figsize=(20, max_employees_growth + 2), layout='constrained')
-
-        ax.bar(years, employees_growth_per_year)
-        plt.xticks(years)
-        plt.yticks(employees_growth_per_year)
-
-        for i, year in enumerate(years):
-            ax.annotate(employees_growth_per_year[i], xy=(year, employees_growth_per_year[i]))
-
+        diagram = self.diagrams_factory.create_title_employees_growth_diagram(titles_employees_growth_forecast)
         diagram_window = event_window.parent_gui.create_diagram_window("Title employees count growth forecast")
-        diagram_window.draw_figure(figure)
+        diagram_window.draw_diagram(diagram)

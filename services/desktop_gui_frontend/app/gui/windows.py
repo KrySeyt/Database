@@ -15,6 +15,7 @@ from ..service.exceptions import WrongData
 from ..service.mixins import Observer
 from ..service.storage import schema
 from ..service import ServiceFactory, StorageService
+from ..diagrams.diagrams import DiagramsFactory
 from .errors_handling import (
     get_wrong_employee_data_fields,
     get_wrong_forecasts_data_fields,
@@ -268,7 +269,7 @@ class DiagramWindow(AppWindow):
     def __init__(self, title: str, *args: Any, **kwargs: Any) -> None:
         super().__init__(title, layout=deepcopy(layouts.DIAGRAM_WINDOW), *args, **kwargs)
 
-    def draw_figure(self, figure: Figure) -> None:
+    def draw_diagram(self, figure: Figure) -> None:
         canvas = self[elements.Diagrams.DIAGRAM_CANVAS].TKCanvas
         figure_canvas_agg = FigureCanvasTkAgg(figure, canvas)
         figure_canvas_agg.draw()
@@ -276,10 +277,11 @@ class DiagramWindow(AppWindow):
 
 
 class WindowsFactory:
-    def __init__(self, service_factory: ServiceFactory) -> None:
+    def __init__(self, service_factory: ServiceFactory, diagrams_factory: DiagramsFactory) -> None:
         self.storage_service = service_factory.create_storage_service()
         self.statistics_service = service_factory.create_statistics_service()
         self.forecasts_service = service_factory.create_forecasts_service()
+        self.diagrams_factory = diagrams_factory
 
     def create_main_window(self, parent_gui: "gui.GUI") -> MainWindow:
         main_window_events_handlers = {
@@ -344,35 +346,35 @@ class WindowsFactory:
                     commands.ShowMaxWorkDuration(self.statistics_service)
                 ]),
             events.StatisticsEvent.SHOW_MAX_WORK_DURATION_DIAGRAM:
-                commands.ShowDiagramMaxWorkDurationDiagram(),
+                commands.ShowDiagramMaxWorkDurationDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES:
                 commands.MultiCommand([
                     commands.HideErrors(),
                     commands.ShowHighestPaidEmployees(self.statistics_service),
                 ]),
             events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_DIAGRAM:
-                commands.ShowHighestPaidEmployeesDiagram(),
+                commands.ShowHighestPaidEmployeesDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY:
                 commands.MultiCommand([
                     commands.HideErrors(),
                     commands.ShowTitleEmployeesGrowthHistory(self.statistics_service),
                 ]),
             events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_DIAGRAM:
-                commands.ShowTitleEmployeesGrowthHistoryDiagram(),
+                commands.ShowTitleEmployeesGrowthHistoryDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES:
                 commands.MultiCommand([
                     commands.HideErrors(),
                     commands.ShowEmployeesDistributionByTitles(self.storage_service),
                 ]),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_DIAGRAM:
-                commands.ShowEmployeesDistributionByTitlesDiagram(),
+                commands.ShowEmployeesDistributionByTitlesDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS:
                 commands.MultiCommand([
                     commands.HideErrors(),
                     commands.ShowEmployeesDistributionByTopics(self.storage_service),
                 ]),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_DIAGRAM:
-                commands.ShowEmployeesDistributionByTopicsDiagram(),
+                commands.ShowEmployeesDistributionByTopicsDiagram(self.diagrams_factory),
             events.OperationStatus.SUCCESS:
                 commands.ShowStatus(events.OperationStatus.SUCCESS),
             events.OperationStatus.PROCESSING:
@@ -405,7 +407,7 @@ class WindowsFactory:
                     commands.ShowTitleEmployeesGrowthForecast(self.forecasts_service),
                 ]),
             events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_DIAGRAM:
-                commands.ShowTitleEmployeesGrowthForecastDiagram(),
+                commands.ShowTitleEmployeesGrowthForecastDiagram(self.diagrams_factory),
             events.OperationStatus.SUCCESS:
                 commands.ShowStatus(events.OperationStatus.SUCCESS),
             events.OperationStatus.PROCESSING:
