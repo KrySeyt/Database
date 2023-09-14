@@ -38,6 +38,7 @@ class StorageBackend(StorageImp):
                 errors_places: list[tuple[Any, ...]] = []
                 messages: list[str] = []
                 errors_types: list[str] = []
+
                 for err_info in response.json()["detail"]:
                     errors_places.append(tuple(err_info["loc"][1:]))
                     messages.append(err_info["msg"])

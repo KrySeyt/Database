@@ -10,11 +10,11 @@ class StatisticsImp(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_max_work_duration_employees(self, title_name: str) -> list[schema.Employee]:
+    def get_max_work_duration_employees(self, employees_count: int) -> list[schema.Employee]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_highest_paid_employees(self, title_name: str) -> list[schema.Employee]:
+    def get_highest_paid_employees(self, employees_count: int) -> list[schema.Employee]:
         raise NotImplementedError
 
 
@@ -28,13 +28,13 @@ class StatisticsService:
         except BackendConnectionError:
             raise
 
-    def get_max_work_duration_employees(self, employees_count: str) -> list[schema.Employee]:
+    def get_max_work_duration_employees(self, employees_count: int) -> list[schema.Employee]:
         try:
             return self.implementation.get_max_work_duration_employees(employees_count)
         except BackendConnectionError:
             raise
 
-    def get_highest_paid_employees(self, employees_count: str) -> list[schema.Employee]:
+    def get_highest_paid_employees(self, employees_count: int) -> list[schema.Employee]:
         try:
             return self.implementation.get_highest_paid_employees(employees_count)
         except BackendConnectionError:

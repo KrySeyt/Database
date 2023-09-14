@@ -1,5 +1,5 @@
 from ..exceptions import WrongData
 
 
-class WrongEmployeeData(WrongData):
+class WrongForecastsData(WrongData):
     pass

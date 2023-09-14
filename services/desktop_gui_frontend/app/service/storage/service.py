@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from ..exceptions import BackendConnectionError
 from . import schema
 from .. import mixins
 

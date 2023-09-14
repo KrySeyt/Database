@@ -1,12 +1,25 @@
-#  TODO: Maybe refactor exceptions and their location
-
 from typing import Any
-
-from app.service.storage import schema
 
 
 class ServiceError(Exception):
     pass
+
+
+class WrongData(ServiceError):  # TODO: Refactor wrong user input exceptions
+    def __init__(
+            self,
+            errors_places: list[tuple[Any, ...]] | None = None,
+            messages: list[str] | None = None,
+            errors_types: list[str] | None = None,
+            *args: Any,
+            **kwargs: Any
+    ) -> None:
+
+        super().__init__(*args, **kwargs)
+
+        self.errors_places = errors_places or []
+        self.messages = messages or []
+        self.errors_types = errors_types or []
 
 
 class BackendConnectionError(ServiceError):
@@ -15,9 +28,3 @@ class BackendConnectionError(ServiceError):
 
 class BackendServerError(ServiceError):
     pass
-
-
-class WrongData(ServiceError):
-    def __init__(self, errors: list[schema.BackendWrongDataInfo], *args: Any) -> None:
-        super().__init__(*args)
-        self.errors = errors

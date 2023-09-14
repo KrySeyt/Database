@@ -1,20 +1,26 @@
 import datetime
 from abc import ABC, abstractmethod
+from collections import Counter
 from typing import Any
 
 import matplotlib.pyplot as plt  # type: ignore
 from matplotlib.figure import Figure  # type: ignore
 from dateutil import relativedelta
 
+from ..service.forecasts.exceptions import WrongForecastsData
+from ..service.statistics.exceptions import WrongStatisticsData
 from ..service.storage.exceptions import WrongEmployeeData
 from ..service.storage import schema
-from ..service.exceptions import ServiceError
-from ..service import StorageService, StatisticsService
+from ..service.exceptions import ServiceError, WrongData
+from ..service import StorageService, StatisticsService, ForecastsService
 from .keys import Key
-from .errors_handling import get_wrong_employee_data_fields
 from . import windows
 from . import events
 from . import elements
+
+
+# TODO: Add commands reverting
+# TODO: Move diagrams building to special class/classes
 
 
 class Command(ABC):
@@ -77,7 +83,7 @@ class UpdateEmployee(Command):
             events.OperationStatus.PROCESSING,
             events.OperationStatus.FAILED,
             ServiceError,
-            suppress_exception=False
+            suppress_exception=True
         )
         def operation() -> schema.Employee:
             return self.storage_service.update_employee(new_employee_data, employee.id)
@@ -104,7 +110,7 @@ class DeleteEmployees(Command):
             events.OperationStatus.PROCESSING,
             events.OperationStatus.FAILED,
             ServiceError,
-            suppress_exception=False
+            suppress_exception=True
         )
         def operation() -> list[schema.Employee]:
             return self.storage_service.delete_employees(selected_employees_ids)
@@ -127,7 +133,7 @@ class RefreshEmployeesTable(Command):
             events.OperationStatus.PROCESSING,
             events.OperationStatus.FAILED,
             ServiceError,
-            suppress_exception=False
+            suppress_exception=True
         )
         def operation() -> list[schema.Employee]:
             return self.storage_service.get_employees(0, 99999)
@@ -144,22 +150,26 @@ class ShowEmployees(Command):
         event_window.update_employees_table(employees)
 
 
-class ShowWrongEmployeeData(Command):
+class ShowWrongData(Command):
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
 
-        if not isinstance(event_window, windows.MainWindow):
+        if not isinstance(event_window, windows.CanShowErrors):
             return
 
         wrong_data_exception = values[events.OperationStatus.FAILED]
 
-        if not isinstance(wrong_data_exception, WrongEmployeeData):
+        if not isinstance(wrong_data_exception, WrongData):
             return
 
-        wrong_data_fields = get_wrong_employee_data_fields(wrong_data_exception)
-        event_window.show_errors(wrong_data_fields)
+        event_window.show_errors(wrong_data_exception)
 
-        error_message = wrong_data_exception.messages[0]
-        event_window.show_error_message(error_message)
+
+class HideErrors(Command):
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        if not isinstance(event_window, windows.CanShowErrors):
+            return
+
+        event_window.hide_errors()
 
 
 class CloseWindow(Command):
@@ -180,7 +190,7 @@ class ShowStatus(Command):
         self.status = status
 
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
-        if not isinstance(event_window, windows.MainWindow):
+        if not isinstance(event_window, windows.WindowWithOperationStatus):
             return
 
         event_window.show_operation_status(self.status)
@@ -197,8 +207,33 @@ class ShowMaxWorkDuration(Command):
         self.statistics_service = statistics_service
 
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
-        employees_count = values[elements.Statistics.MAX_WORK_DURATION_EMPLOYEES_COUNT]
+        if not isinstance(event_window, windows.StatisticsWindow):
+            return
 
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=WrongStatisticsData,
+            suppress_exception=True
+        )
+        def get_employees_count() -> int:
+            return event_window.get_max_work_duration_employees_count()
+
+        employees_count = get_employees_count()
+
+        if not employees_count:
+            return
+
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=ServiceError,
+            suppress_exception=True
+        )
         def operation() -> list[schema.Employee]:
             return self.statistics_service.get_max_work_duration_employees(employees_count)
 
@@ -208,6 +243,10 @@ class ShowMaxWorkDuration(Command):
 class ShowDiagramMaxWorkDurationDiagram(Command):
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         employees = values[events.StatisticsEvent.SHOW_MAX_WORK_DURATION_DIAGRAM]
+
+        if not employees:
+            return
+
         employees_count = len(employees)
 
         today = datetime.date.today()
@@ -238,8 +277,33 @@ class ShowHighestPaidEmployees(Command):
         self.statistics_service = statistics_service
 
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
-        employees_count = values[elements.Statistics.HIGHEST_PAID_EMPLOYEES_COUNT]
+        if not isinstance(event_window, windows.StatisticsWindow):
+            return
 
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=WrongStatisticsData,
+            suppress_exception=True
+        )
+        def get_employees_count() -> int:
+            return event_window.get_highest_paid_employees_count()
+
+        employees_count = get_employees_count()
+
+        if not employees_count:
+            return
+
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=ServiceError,
+            suppress_exception=True
+        )
         def operation() -> list[schema.Employee]:
             return self.statistics_service.get_max_work_duration_employees(employees_count)
 
@@ -249,6 +313,9 @@ class ShowHighestPaidEmployees(Command):
 class ShowHighestPaidEmployeesDiagram(Command):
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
         highest_paid_employees = values[events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_DIAGRAM]
+
+        if not highest_paid_employees:
+            return
 
         employees_names = []
         employees_salaries_sizes_places: list[int] = []
@@ -285,4 +352,277 @@ class ShowHighestPaidEmployeesDiagram(Command):
             ax.annotate(employees_salaries_reprs[i], xy=(i, graphs_sizes[i]))
 
         diagram_window = event_window.parent_gui.create_diagram_window("Highest paid employees")
+        diagram_window.draw_figure(figure)
+
+
+class ShowTitleEmployeesGrowthHistory(Command):
+    def __init__(self, statistics_service: StatisticsService) -> None:
+        self.statistics_service = statistics_service
+
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        if not isinstance(event_window, windows.StatisticsWindow):
+            return
+
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=WrongStatisticsData,
+            suppress_exception=True
+        )
+        def get_title_name() -> str:
+            return event_window.get_title_employees_growth_title_name()
+
+        title_name = get_title_name()
+
+        if not title_name:
+            return
+
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=ServiceError,
+            suppress_exception=True
+        )
+        def operation() -> dict[int, int]:
+            growth_history = self.statistics_service.get_title_employees_history_growth(title_name)
+            if not growth_history:
+                raise WrongStatisticsData(errors_places=[("-TITLE-EMPLOYEES-GROWTH-HISTORY-TITLE-NAME-",)])
+            return growth_history
+
+        event_window.perform_long_operation(
+            operation,
+            events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_DIAGRAM
+        )
+
+
+class ShowTitleEmployeesGrowthHistoryDiagram(Command):
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        titles_employees_growth_history = values[events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_DIAGRAM]
+
+        if not titles_employees_growth_history:
+            return
+
+        years = []
+        employees_growth_per_year = []
+        for year in titles_employees_growth_history:
+            years.append(year)
+            employees_growth_per_year.append(titles_employees_growth_history[year])
+
+        max_employees_growth = max(employees_growth_per_year)
+        figure, ax = plt.subplots(figsize=(20, max_employees_growth + 2), layout='constrained')
+
+        ax.bar(years, employees_growth_per_year)
+        plt.xticks(years)
+        plt.yticks(employees_growth_per_year)
+
+        for i, year in enumerate(years):
+            ax.annotate(employees_growth_per_year[i], xy=(year, employees_growth_per_year[i]))
+
+        diagram_window = event_window.parent_gui.create_diagram_window("Title employees count growth history")
+        diagram_window.draw_figure(figure)
+
+
+class ShowEmployeesDistributionByTitles(Command):
+    def __init__(self, storage_service: StorageService) -> None:
+        self.storage_service = storage_service
+
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=ServiceError,
+            suppress_exception=True
+        )
+        def operation() -> list[schema.Employee]:
+            return self.storage_service.get_employees(0, 999999999999)
+
+        event_window.perform_long_operation(
+            operation,
+            events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_DIAGRAM
+        )
+
+
+class ShowEmployeesDistributionByTitlesDiagram(Command):
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_DIAGRAM]
+
+        if not employees:
+            return
+
+        emps_count_per_title: Counter[str] = Counter()
+        for emp in employees:
+            for title in emp.titles:
+                emps_count_per_title[title.name] += 1
+
+        figure, ax = plt.subplots(figsize=(
+            20,
+            10
+        ), layout='constrained')
+
+        titles: list[str] = []
+        emps_counts: list[int] = []
+        for title in emps_count_per_title:
+            titles.append(title)
+            emps_counts.append(emps_count_per_title[title])
+
+        ax.bar(titles, emps_counts)
+        plt.xticks(titles)
+        plt.yticks(emps_counts)
+
+        for i, emps_count in enumerate(emps_counts):
+            ax.annotate(emps_count, xy=(i, emps_count))
+
+        diagram_window = event_window.parent_gui.create_diagram_window("Employees distribution by titles")
+        diagram_window.draw_figure(figure)
+
+
+class ShowEmployeesDistributionByTopics(Command):
+    def __init__(self, storage_service: StorageService) -> None:
+        self.storage_service = storage_service
+
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=ServiceError,
+            suppress_exception=True
+        )
+        def operation() -> list[schema.Employee]:
+            return self.storage_service.get_employees(0, 999999999999)
+
+        event_window.perform_long_operation(
+            operation,
+            events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_DIAGRAM
+        )
+
+
+class ShowEmployeesDistributionByTopicsDiagram(Command):
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        employees = values[events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_DIAGRAM]
+
+        if not employees:
+            return
+
+        emps_count_per_topic: Counter[str] = Counter()
+        for emp in employees:
+            emps_count_per_topic[emp.topic.name] += 1
+
+        figure, ax = plt.subplots(figsize=(
+            20,
+            10
+        ), layout='constrained')
+
+        topics: list[str] = []
+        emps_counts: list[int] = []
+        for topic in emps_count_per_topic:
+            topics.append(topic)
+            emps_counts.append(emps_count_per_topic[topic])
+
+        ax.bar(topics, emps_counts)
+        plt.xticks(topics)
+        plt.yticks(emps_counts)
+
+        for i, emps_count in enumerate(emps_counts):
+            ax.annotate(emps_count, xy=(i, emps_count))
+
+        diagram_window = event_window.parent_gui.create_diagram_window("Employees distribution by topics")
+        diagram_window.draw_figure(figure)
+
+
+class OpenForecastsWindow(Command):
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        gui = event_window.parent_gui
+        gui.create_forecasts_window()
+
+
+class ShowTitleEmployeesGrowthForecast(Command):
+    def __init__(self, forecasts_service: ForecastsService) -> None:
+        self.forecasts_service = forecasts_service
+
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        if not isinstance(event_window, windows.ForecastsWindow):
+            return
+
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=WrongForecastsData,
+            suppress_exception=True
+        )
+        def get_title_name() -> str:
+            return event_window.get_title_employees_growth_title_name()
+
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=WrongForecastsData,
+            suppress_exception=True
+        )
+        def get_years_count() -> int:
+            return event_window.get_title_employees_growth_years_count()
+
+        title_name = get_title_name()
+        years_count = get_years_count()
+
+        if not title_name or not years_count:
+            return
+
+        @events.raise_status_events(
+            event_window,
+            events.OperationStatus.SUCCESS,
+            events.OperationStatus.PROCESSING,
+            events.OperationStatus.FAILED,
+            handle_exception_type=ServiceError,
+            suppress_exception=True
+        )
+        def operation() -> dict[int, int]:
+            growth_forecast = self.forecasts_service.get_title_employees_forecast_growth(title_name, years_count)
+            if not growth_forecast:
+                raise WrongForecastsData(errors_places=[
+                    (elements.Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_TITLE_NAME.value,)
+                ])
+            return growth_forecast
+
+        event_window.perform_long_operation(
+            operation,
+            events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_DIAGRAM
+        )
+
+
+class ShowTitleEmployeesGrowthForecastDiagram(Command):
+    def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:
+        titles_employees_growth_forecast = values[events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_DIAGRAM]
+
+        if not titles_employees_growth_forecast:
+            return
+
+        years = []
+        employees_growth_per_year = []
+        for year in titles_employees_growth_forecast:
+            years.append(year)
+            employees_growth_per_year.append(titles_employees_growth_forecast[year])
+
+        max_employees_growth = max(employees_growth_per_year)
+        figure, ax = plt.subplots(figsize=(20, max_employees_growth + 2), layout='constrained')
+
+        ax.bar(years, employees_growth_per_year)
+        plt.xticks(years)
+        plt.yticks(employees_growth_per_year)
+
+        for i, year in enumerate(years):
+            ax.annotate(employees_growth_per_year[i], xy=(year, employees_growth_per_year[i]))
+
+        diagram_window = event_window.parent_gui.create_diagram_window("Title employees count growth forecast")
         diagram_window.draw_figure(figure)

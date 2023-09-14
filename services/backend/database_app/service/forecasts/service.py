@@ -15,10 +15,13 @@ async def get_title_employees_growth(
     assert years_count > 0
 
     employees_growth_forecast: dict[int, int] = {}
+    employees_growth_history: dict[int, int] = await statistics_service.get_title_employees_growth_history(db, title)
+    if not employees_growth_history:
+        return {}
 
     for _ in range(years_count):
         employees_growth_info = {
-            **await statistics_service.get_title_employees_growth_history(db, title),
+            **employees_growth_history,
             **employees_growth_forecast
         }
 

@@ -36,6 +36,9 @@ async def get_title_employees_growth_history(
     title_employees_growth = {}
     title_employees = await storage_service.get_employees_by_title(db, title)
 
+    if not title_employees:
+        return {}
+
     for emp in title_employees:
         if emp.employment_date.year not in title_employees_growth:
             title_employees_growth[emp.employment_date.year] = 1

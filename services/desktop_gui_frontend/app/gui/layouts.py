@@ -4,7 +4,8 @@
 import PySimpleGUI as sg
 
 from .elements import EmployeeForm, Misc as ElementsMisc, Statistics, Forecasts, Diagrams
-from .events import EmployeeEvent, WindowEvent, StatisticsEvent, ForecastsEvent, Misc as EventsMisc
+from .events import EmployeeEvent, WindowEvent, StatisticsEvent, ForecastsEvent
+
 
 MAIN_WINDOW_LAYOUT = [
     [sg.Table(
@@ -47,6 +48,7 @@ MAIN_WINDOW_LAYOUT = [
     [sg.Text(visible=False, key=ElementsMisc.MESSAGE_FIELD)]
 ]
 
+
 STATISTICS_WINDOW_LAYOUT = [
     [sg.Button("Max work duration", key=StatisticsEvent.SHOW_MAX_WORK_DURATION),
      sg.Text("Count:"), sg.Input(default_text="3", key=Statistics.MAX_WORK_DURATION_EMPLOYEES_COUNT)],
@@ -56,40 +58,20 @@ STATISTICS_WINDOW_LAYOUT = [
      sg.Text("Title name:"), sg.Input(key=Statistics.TITLE_EMPLOYEES_GROWTH_HISTORY_TITLE_NAME)],
     [sg.Button("Employees distribution by titles", key=StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES)],
     [sg.Button("Employees distribution by topics", key=StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS)],
+    [sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)],
     [sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)]
 ]
 
-DIAGRAM_WINDOW = [
-    [sg.Canvas(key=Diagrams.DIAGRAM_CANVAS, expand_x=True, expand_y=True)]
-]
-
-STATISTICS_MAX_WORK_DURATION_EMPLOYEES_GRAPH_WINDOW = [
-    [sg.Canvas(key=Statistics.MAX_WORK_DURATION_EMPLOYEES_CANVAS, expand_x=True, expand_y=True)]
-]
-
-STATISTICS_HIGHEST_PAID_EMPLOYEES_GRAPH_WINDOW = [
-    [sg.Canvas(key=Statistics.HIGHEST_PAID_EMPLOYEES_CANVAS, expand_x=True, expand_y=True)]
-]
-
-STATISTICS_TITLE_EMPLOYEES_GROWTH_HISTORY_GRAPH_WINDOW = [
-    [sg.Canvas(key=Statistics.TITLE_EMPLOYEES_GROWTH_HISTORY_CANVAS, expand_x=True, expand_y=True)]
-]
-
-STATISTICS_EMPLOYEES_DISTRIBUTION_BY_TITLES_GRAPH_WINDOW = [
-    [sg.Canvas(key=Statistics.EMPLOYEES_DISTRIBUTION_BY_TITLES_CANVAS, expand_x=True, expand_y=True)]
-]
-
-STATISTICS_EMPLOYEES_DISTRIBUTION_BY_TOPICS_GRAPH_WINDOW = [
-    [sg.Canvas(key=Statistics.EMPLOYEES_DISTRIBUTION_BY_TOPICS_CANVAS, expand_x=True, expand_y=True)]
-]
 
 FORECASTS_WINDOW_LAYOUT = [
     [sg.Button("Title employees growth", key=ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST)],
     [sg.Text("Title name:"), sg.Input(key=Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_TITLE_NAME)],
     [sg.Text("Years count:"), sg.Input(key=Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_YEARS_COUNT)],
+    [sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)],
     [sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)]
 ]
 
-FORECASTS_TITLE_EMPLOYEES_GROWTH_FORECAST_GRAPH_WINDOW = [
-    [sg.Canvas(key=Forecasts.TITLE_EMPLOYEES_GROWTH_FORECAST_CANVAS, expand_x=True, expand_y=True)]
+
+DIAGRAM_WINDOW = [
+    [sg.Canvas(key=Diagrams.DIAGRAM_CANVAS, expand_x=True, expand_y=True)]
 ]

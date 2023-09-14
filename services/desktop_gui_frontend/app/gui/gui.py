@@ -32,6 +32,12 @@ class GUI:
         statistics_window.write_event_value(events.WindowEvent.OPEN, None)
         return statistics_window
 
+    def create_forecasts_window(self) -> windows.ForecastsWindow:
+        forecasts_window = self.windows_factory.create_forecasts_window(self)
+        self.windows.append(forecasts_window)
+        forecasts_window.write_event_value(events.WindowEvent.OPEN, None)
+        return forecasts_window
+
     def create_diagram_window(self, title: str) -> windows.DiagramWindow:
         diagram_window = self.windows_factory.create_diagram_window(title, self)
         self.windows.append(diagram_window)

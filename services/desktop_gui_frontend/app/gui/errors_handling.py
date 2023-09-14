@@ -1,3 +1,5 @@
+from ..service.forecasts.exceptions import WrongForecastsData
+from ..service.statistics.exceptions import WrongStatisticsData
 from ..service.storage.exceptions import WrongEmployeeData
 from . import elements
 
@@ -25,5 +27,23 @@ def get_wrong_employee_data_fields(exception: WrongEmployeeData) -> list[element
                 error_fields.append(elements.EmployeeForm(f"-EMPLOYEE-{salary.upper()}-{salary_part.upper()}-"))
             case ["salary"]:
                 error_fields += elements.EmployeeForm.SALARY_CURRENCY, elements.EmployeeForm.SALARY_AMOUNT
+
+    return error_fields
+
+
+# TODO: Refactor this with user wrong input exceptions
+def get_wrong_statistics_data_fields(exception: WrongStatisticsData) -> list[elements.Statistics]:
+    error_fields: list[elements.Statistics] = []
+    for err_place in exception.errors_places:
+        error_fields.append(elements.Statistics(err_place[0]))
+
+    return error_fields
+
+
+# TODO: Refactor this with user wrong input exceptions
+def get_wrong_forecasts_data_fields(exception: WrongForecastsData) -> list[elements.Forecasts]:
+    error_fields: list[elements.Forecasts] = []
+    for err_place in exception.errors_places:
+        error_fields.append(elements.Forecasts(err_place[0]))
 
     return error_fields

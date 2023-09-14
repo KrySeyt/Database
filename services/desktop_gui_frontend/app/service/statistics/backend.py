@@ -11,7 +11,7 @@ class StatisticsBackend(StatisticsImp):
     def __init__(self, backend_url: str) -> None:
         self.backend_url = backend_url
 
-    def get_max_work_duration_employees(self, employees_count: str) -> list[schema.Employee]:
+    def get_max_work_duration_employees(self, employees_count: int) -> list[schema.Employee]:
         endpoint_url = rf"{self.backend_url}/statistics/work_longest_employees/{employees_count}"
 
         try:
@@ -33,7 +33,7 @@ class StatisticsBackend(StatisticsImp):
 
         return [schema.Employee.parse_obj(i) for i in response.json()]
 
-    def get_highest_paid_employees(self, employees_count: str) -> list[schema.Employee]:
+    def get_highest_paid_employees(self, employees_count: int) -> list[schema.Employee]:
         endpoint_url = rf"{self.backend_url}/statistics/highest_paid_employees/{employees_count}"
 
         try:
