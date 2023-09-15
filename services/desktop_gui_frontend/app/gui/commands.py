@@ -1,11 +1,8 @@
-import datetime
 from abc import ABC, abstractmethod
-from collections import Counter
 from typing import Any
 
 import matplotlib.pyplot as plt  # type: ignore
 from matplotlib.figure import Figure  # type: ignore
-from dateutil import relativedelta
 
 from ..service.forecasts.exceptions import WrongForecastsData
 from ..service.statistics.exceptions import WrongStatisticsData
@@ -29,7 +26,7 @@ class Command(ABC):
 
 
 class MultiCommand(Command):
-    def __init__(self, commands: list[Command]) -> None:
+    def __init__(self, *commands: Command) -> None:
         self.commands = commands
 
     def __call__(self, event_window: "windows.AppWindow", values: dict[Key, Any]) -> None:

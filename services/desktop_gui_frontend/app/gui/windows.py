@@ -296,20 +296,20 @@ class WindowsFactory:
             events.EmployeeEvent.SHOW_EMPLOYEES:
                 commands.ShowEmployees(),
             events.EmployeeEvent.ADD_EMPLOYEE:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.AddEmployee(self.storage_service)
-                ]),
+                ),
             events.EmployeeEvent.UPDATE_EMPLOYEE:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.UpdateEmployee(self.storage_service),
-                ]),
+                ),
             events.EmployeeEvent.DELETE_EMPLOYEES:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.DeleteEmployees(self.storage_service),
-                ]),
+                ),
             events.WindowEvent.OPEN_STATISTICS_WINDOW:
                 commands.OpenStatisticsWindow(),
             events.WindowEvent.OPEN_FORECASTS_WINDOW:
@@ -319,10 +319,10 @@ class WindowsFactory:
             events.OperationStatus.PROCESSING:
                 commands.ShowStatus(events.OperationStatus.PROCESSING),
             events.OperationStatus.FAILED:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.ShowStatus(events.OperationStatus.FAILED),
                     commands.ShowWrongData(),
-                ])
+                )
         }
         return MainWindow(
             parent_gui=parent_gui,
@@ -341,38 +341,38 @@ class WindowsFactory:
             events.WindowEvent.CLOSED:
                 commands.CloseWindow(),
             events.StatisticsEvent.SHOW_MAX_WORK_DURATION:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.ShowMaxWorkDuration(self.statistics_service)
-                ]),
+                ),
             events.StatisticsEvent.SHOW_MAX_WORK_DURATION_DIAGRAM:
                 commands.ShowDiagramMaxWorkDurationDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.ShowHighestPaidEmployees(self.statistics_service),
-                ]),
+                ),
             events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_DIAGRAM:
                 commands.ShowHighestPaidEmployeesDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.ShowTitleEmployeesGrowthHistory(self.statistics_service),
-                ]),
+                ),
             events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_DIAGRAM:
                 commands.ShowTitleEmployeesGrowthHistoryDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.ShowEmployeesDistributionByTitles(self.storage_service),
-                ]),
+                ),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_DIAGRAM:
                 commands.ShowEmployeesDistributionByTitlesDiagram(self.diagrams_factory),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.ShowEmployeesDistributionByTopics(self.storage_service),
-                ]),
+                ),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_DIAGRAM:
                 commands.ShowEmployeesDistributionByTopicsDiagram(self.diagrams_factory),
             events.OperationStatus.SUCCESS:
@@ -380,10 +380,10 @@ class WindowsFactory:
             events.OperationStatus.PROCESSING:
                 commands.ShowStatus(events.OperationStatus.PROCESSING),
             events.OperationStatus.FAILED:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.ShowStatus(events.OperationStatus.FAILED),
                     commands.ShowWrongData()
-                ])
+                )
 
         }
         return StatisticsWindow(
@@ -402,10 +402,10 @@ class WindowsFactory:
             events.WindowEvent.CLOSED:
                 commands.CloseWindow(),
             events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.HideErrors(),
                     commands.ShowTitleEmployeesGrowthForecast(self.forecasts_service),
-                ]),
+                ),
             events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_DIAGRAM:
                 commands.ShowTitleEmployeesGrowthForecastDiagram(self.diagrams_factory),
             events.OperationStatus.SUCCESS:
@@ -413,10 +413,10 @@ class WindowsFactory:
             events.OperationStatus.PROCESSING:
                 commands.ShowStatus(events.OperationStatus.PROCESSING),
             events.OperationStatus.FAILED:
-                commands.MultiCommand([
+                commands.MultiCommand(
                     commands.ShowStatus(events.OperationStatus.FAILED),
                     commands.ShowWrongData()
-                ])
+                )
         }
         return ForecastsWindow(
             parent_gui=parent_gui,
