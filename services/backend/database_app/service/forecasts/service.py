@@ -1,5 +1,3 @@
-import datetime
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..storage import schema as storage_schema
