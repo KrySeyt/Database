@@ -1,6 +1,21 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import schema, crud
+from .exceptions import EmployeeIDDoesntExist
+
+
+async def is_service_number_available_to_employee(
+        db: AsyncSession,
+        service_number: int,
+        employee_id: int
+     ) -> bool:
+
+    employee = await get_employee(db, employee_id)
+    if not employee:
+        raise EmployeeIDDoesntExist
+    is_employee_are_number_owner = employee.service_number == service_number
+    is_service_number_free = not await crud.is_service_number_occupied(db, service_number)
+    return is_service_number_free or is_employee_are_number_owner
 
 
 async def is_service_number_occupied(db: AsyncSession, service_number: int) -> bool:

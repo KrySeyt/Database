@@ -6,7 +6,11 @@ from fastapi import APIRouter, Depends, Query, status, Body
 from database_app.service.storage import schema, service
 from ...dependencies import get_db_stub
 from ...schema import ErrorResponseBody
-from .dependencies import employee_service_number_unique, employee_id_exists
+from .dependencies import (
+    employee_service_number_not_occupied,
+    employee_id_exists,
+    employee_service_number_available_to_employee
+)
 
 
 router = APIRouter(tags=["Storage"], prefix="/storage")
@@ -18,7 +22,7 @@ router = APIRouter(tags=["Storage"], prefix="/storage")
     status_code=status.HTTP_201_CREATED,
 )
 async def create_employee(
-        employee: Annotated[schema.EmployeeIn, Depends(employee_service_number_unique)],
+        employee: Annotated[schema.EmployeeIn, Depends(employee_service_number_not_occupied)],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:
     return await service.create_employee(db, employee)
@@ -60,7 +64,7 @@ async def get_employees(
     }
 )
 async def update_employee(
-        employee_in: Annotated[schema.EmployeeIn, Body()],
+        employee_in: Annotated[schema.EmployeeIn, Depends(employee_service_number_available_to_employee)],
         employee_id: Annotated[int, Depends(employee_id_exists)],
         db: Annotated[AsyncSession, Depends(get_db_stub)],
 ) -> schema.Employee:
