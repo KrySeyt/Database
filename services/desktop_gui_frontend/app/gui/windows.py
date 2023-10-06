@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Iterable
+from typing import Any, Iterable, Container
 from abc import ABC, abstractmethod
 from copy import deepcopy
 
@@ -16,6 +16,8 @@ from ..service.mixins import Observer
 from ..service.storage import schema
 from ..service import ServiceFactory, StorageService
 from ..diagrams.diagrams import DiagramsFactory
+from .commands import history
+from .commands import commands
 from .errors_handling import (
     get_wrong_employee_data_fields,
     get_wrong_forecasts_data_fields,
@@ -26,7 +28,6 @@ from . import keys
 from . import layouts
 from . import events
 from . import gui
-from . import commands
 
 
 # PySimpleGUI have no typing stubs
@@ -74,7 +75,7 @@ class AppWindow(sg.Window, ABC):  # type: ignore
             self,
             title: str,
             parent_gui: "gui.GUI",
-            events_handlers: dict[events.Event, commands.Command],
+            events_handlers: "dict[events.Event, commands.Command]",
             *args: Any,
             **kwargs: Any
     ) -> None:
@@ -130,10 +131,30 @@ class MainWindow(AppWindow, WindowWithOperationStatus, CanShowErrors, Observer):
             salary=self.get_salary()
         )
 
+    def get_employee_search_model(self) -> schema.EmployeeSearchModel:
+        return schema.EmployeeSearchModel(
+            name=self[elements.EmployeeForm.NAME].get() or None,
+            surname=self[elements.EmployeeForm.SURNAME].get() or None,
+            patronymic=self[elements.EmployeeForm.PATRONYMIC].get() or None,
+            service_number=self[elements.EmployeeForm.SERVICE_NUMBER].get() or None,
+            department_number=self[elements.EmployeeForm.DEPARTMENT_NUMBER].get() or None,
+            employment_date=self[elements.EmployeeForm.EMPLOYMENT_DATE].get() or None,
+            titles=self.get_titles_search_models(),
+            post=self.get_post_search_model(),
+            topic=self.get_topic_search_model(),
+            salary=self.get_salary_search_model()
+        )
+
     def get_topic(self) -> schema.TopicIn:
         return schema.TopicIn(
             name=self[elements.EmployeeForm.TOPIC_NAME].get(),
             number=self[elements.EmployeeForm.TOPIC_NUMBER].get()
+        )
+
+    def get_topic_search_model(self) -> schema.TopicSearchModel:
+        return schema.TopicSearchModel(
+            name=self[elements.EmployeeForm.TOPIC_NAME].get() or None,
+            number=self[elements.EmployeeForm.TOPIC_NUMBER].get() or None
         )
 
     def get_post(self) -> schema.PostIn:
@@ -142,17 +163,38 @@ class MainWindow(AppWindow, WindowWithOperationStatus, CanShowErrors, Observer):
             code=self[elements.EmployeeForm.POST_CODE].get()
         )
 
+    def get_post_search_model(self) -> schema.PostSearchModel:
+        return schema.PostSearchModel(
+            name=self[elements.EmployeeForm.POST_NAME].get() or None,
+            code=self[elements.EmployeeForm.POST_CODE].get() or None
+        )
+
     def get_salary(self) -> schema.SalaryIn:
         return schema.SalaryIn(
             amount=self[elements.EmployeeForm.SALARY_AMOUNT].get(),
             currency=self.get_currency(),
         )
 
+    def get_salary_search_model(self) -> schema.SalarySearchModel:
+        return schema.SalarySearchModel(
+            amount=self[elements.EmployeeForm.SALARY_AMOUNT].get() or None,
+            currency=self.get_currency_search_model(),
+        )
+
     def get_currency(self) -> schema.CurrencyIn:
         return schema.CurrencyIn(name=self[elements.EmployeeForm.SALARY_CURRENCY].get())
 
+    def get_currency_search_model(self) -> schema.CurrencySearchModel:
+        return schema.CurrencySearchModel(name=self[elements.EmployeeForm.SALARY_CURRENCY].get() or None)
+
     def get_titles(self) -> list[schema.TitleIn]:
         return [schema.TitleIn(name=title_name) for title_name in self[elements.EmployeeForm.TITLES].get().split(", ")]
+
+    def get_titles_search_models(self) -> list[schema.TitleSearchModel]:
+        titles = []
+        for title_name in self[elements.EmployeeForm.TITLES].get().split(", "):
+            titles.append(schema.TitleSearchModel(name=title_name))
+        return titles
 
     def show_errors(self, exception: WrongData) -> None:
         if isinstance(exception, WrongEmployeeData):
@@ -186,6 +228,14 @@ class MainWindow(AppWindow, WindowWithOperationStatus, CanShowErrors, Observer):
 
     def notify(self) -> None:
         self.write_event_value(events.EmployeeEvent.REFRESH_EMPLOYEES_TABLE, None)
+
+    def select_employees_rows(self, employees_ids: Container[int]) -> None:
+        employees_list_ids: list[int] = []
+        for list_id, emp in enumerate(self.table_employees):
+            if emp.id in employees_ids:
+                employees_list_ids.append(list_id)
+
+        self[events.EmployeeEvent.EMPLOYEE_SELECTED].update(select_rows=employees_list_ids)
 
 
 class StatisticsWindow(AppWindow, WindowWithOperationStatus, CanShowErrors):
@@ -283,46 +333,60 @@ class WindowsFactory:
         self.forecasts_service = service_factory.create_forecasts_service()
         self.diagrams_factory = diagrams_factory
 
-    def create_main_window(self, parent_gui: "gui.GUI") -> MainWindow:
+    def create_main_window(self, parent_gui: "gui.GUI", commands_history: "history.CommandsHistory") -> MainWindow:
         main_window_events_handlers = {
             events.WindowEvent.OPEN:
-                commands.RefreshEmployeesTable(self.storage_service),
+                commands.RefreshEmployeesTable(self.storage_service, commands_history),
             events.WindowEvent.EXIT:
-                commands.CloseAllWindows(),
+                commands.CloseAllWindows(commands_history),
             events.WindowEvent.CLOSED:
-                commands.CloseAllWindows(),
+                commands.CloseAllWindows(commands_history),
             events.EmployeeEvent.REFRESH_EMPLOYEES_TABLE:
-                commands.RefreshEmployeesTable(self.storage_service),
+                commands.RefreshEmployeesTable(self.storage_service, commands_history),
             events.EmployeeEvent.SHOW_EMPLOYEES:
-                commands.ShowEmployees(),
+                commands.ShowEmployees(commands_history),
             events.EmployeeEvent.ADD_EMPLOYEE:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.AddEmployee(self.storage_service)
+                    commands.HideErrors(commands_history),
+                    commands.AddEmployee(self.storage_service, commands_history),
+                    commands_history=commands_history,
                 ),
             events.EmployeeEvent.UPDATE_EMPLOYEE:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.UpdateEmployee(self.storage_service),
+                    commands.HideErrors(commands_history),
+                    commands.UpdateEmployee(self.storage_service, commands_history),
+                    commands_history=commands_history,
                 ),
             events.EmployeeEvent.DELETE_EMPLOYEES:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.DeleteEmployees(self.storage_service),
+                    commands.HideErrors(commands_history),
+                    commands.DeleteEmployees(self.storage_service, commands_history),
+                    commands_history=commands_history,
                 ),
+            events.EmployeeEvent.SEARCH_EMPLOYEES:
+                commands.MultiCommand(
+                    commands.HideErrors(commands_history),
+                    commands.SearchEmployees(self.storage_service, commands_history),
+                    commands_history=commands_history
+                ),
+            events.EmployeeEvent.SELECT_EMPLOYEES:
+                commands.SelectEmployeesInTable(commands_history),
             events.WindowEvent.OPEN_STATISTICS_WINDOW:
-                commands.OpenStatisticsWindow(),
+                commands.OpenStatisticsWindow(commands_history),
             events.WindowEvent.OPEN_FORECASTS_WINDOW:
-                commands.OpenForecastsWindow(),
+                commands.OpenForecastsWindow(commands_history),
             events.OperationStatus.SUCCESS:
-                commands.ShowStatus(events.OperationStatus.SUCCESS),
+                commands.ShowStatus(events.OperationStatus.SUCCESS, commands_history),
             events.OperationStatus.PROCESSING:
-                commands.ShowStatus(events.OperationStatus.PROCESSING),
+                commands.ShowStatus(events.OperationStatus.PROCESSING, commands_history),
             events.OperationStatus.FAILED:
                 commands.MultiCommand(
-                    commands.ShowStatus(events.OperationStatus.FAILED),
-                    commands.ShowWrongData(),
-                )
+                    commands.ShowStatus(events.OperationStatus.FAILED, commands_history),
+                    commands.ShowWrongData(commands_history),
+                    commands_history=commands_history
+                ),
+            events.Misc.REVERT_ACTION:
+                commands.RevertCommand(commands_history)
         }
         return MainWindow(
             parent_gui=parent_gui,
@@ -334,55 +398,65 @@ class WindowsFactory:
             resizable=True,
         )
 
-    def create_statistics_window(self, parent_gui: "gui.GUI") -> StatisticsWindow:
+    def create_statistics_window(
+            self,
+            parent_gui: "gui.GUI",
+            commands_history: "history.CommandsHistory"
+    ) -> StatisticsWindow:
         statistics_window_events_handlers = {
             events.WindowEvent.EXIT:
-                commands.CloseWindow(),
+                commands.CloseWindow(commands_history),
             events.WindowEvent.CLOSED:
-                commands.CloseWindow(),
+                commands.CloseWindow(commands_history),
             events.StatisticsEvent.SHOW_MAX_WORK_DURATION:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.ShowMaxWorkDuration(self.statistics_service)
+                    commands.HideErrors(commands_history),
+                    commands.ShowMaxWorkDuration(self.statistics_service, commands_history),
+                    commands_history=commands_history
                 ),
             events.StatisticsEvent.SHOW_MAX_WORK_DURATION_DIAGRAM:
-                commands.ShowDiagramMaxWorkDurationDiagram(self.diagrams_factory),
+                commands.ShowDiagramMaxWorkDurationDiagram(self.diagrams_factory, commands_history),
             events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.ShowHighestPaidEmployees(self.statistics_service),
+                    commands.HideErrors(commands_history),
+                    commands.ShowHighestPaidEmployees(self.statistics_service, commands_history=commands_history),
+                    commands_history=commands_history
                 ),
             events.StatisticsEvent.SHOW_HIGHEST_PAID_EMPLOYEES_DIAGRAM:
-                commands.ShowHighestPaidEmployeesDiagram(self.diagrams_factory),
+                commands.ShowHighestPaidEmployeesDiagram(self.diagrams_factory, commands_history),
             events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.ShowTitleEmployeesGrowthHistory(self.statistics_service),
+                    commands.HideErrors(commands_history),
+                    commands.ShowTitleEmployeesGrowthHistory(self.statistics_service, commands_history),
+                    commands_history=commands_history
                 ),
             events.StatisticsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_HISTORY_DIAGRAM:
-                commands.ShowTitleEmployeesGrowthHistoryDiagram(self.diagrams_factory),
+                commands.ShowTitleEmployeesGrowthHistoryDiagram(self.diagrams_factory, commands_history),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.ShowEmployeesDistributionByTitles(self.storage_service),
+                    commands.HideErrors(commands_history),
+                    commands.ShowEmployeesDistributionByTitles(self.storage_service, commands_history),
+                    commands_history=commands_history
                 ),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TITLES_DIAGRAM:
-                commands.ShowEmployeesDistributionByTitlesDiagram(self.diagrams_factory),
+                commands.ShowEmployeesDistributionByTitlesDiagram(self.diagrams_factory, commands_history),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.ShowEmployeesDistributionByTopics(self.storage_service),
+                    commands.HideErrors(commands_history),
+                    commands.ShowEmployeesDistributionByTopics(self.storage_service, commands_history),
+                    commands_history=commands_history
                 ),
             events.StatisticsEvent.SHOW_EMPLOYEES_DISTRIBUTION_BY_TOPICS_DIAGRAM:
-                commands.ShowEmployeesDistributionByTopicsDiagram(self.diagrams_factory),
+                commands.ShowEmployeesDistributionByTopicsDiagram(self.diagrams_factory, commands_history),
             events.OperationStatus.SUCCESS:
-                commands.ShowStatus(events.OperationStatus.SUCCESS),
+                commands.ShowStatus(events.OperationStatus.SUCCESS, commands_history),
             events.OperationStatus.PROCESSING:
-                commands.ShowStatus(events.OperationStatus.PROCESSING),
+                commands.ShowStatus(events.OperationStatus.PROCESSING, commands_history),
             events.OperationStatus.FAILED:
                 commands.MultiCommand(
-                    commands.ShowStatus(events.OperationStatus.FAILED),
-                    commands.ShowWrongData()
+                    commands.ShowStatus(events.OperationStatus.FAILED, commands_history),
+                    commands.ShowWrongData(commands_history),
+                    commands_history=commands_history
                 )
 
         }
@@ -395,27 +469,33 @@ class WindowsFactory:
             resizable=True,
         )
 
-    def create_forecasts_window(self, parent_gui: "gui.GUI") -> ForecastsWindow:
+    def create_forecasts_window(
+            self,
+            parent_gui: "gui.GUI",
+            commands_history: "history.CommandsHistory"
+    ) -> ForecastsWindow:
         forecasts_window_events_handlers = {
             events.WindowEvent.EXIT:
-                commands.CloseWindow(),
+                commands.CloseWindow(commands_history),
             events.WindowEvent.CLOSED:
-                commands.CloseWindow(),
+                commands.CloseWindow(commands_history),
             events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST:
                 commands.MultiCommand(
-                    commands.HideErrors(),
-                    commands.ShowTitleEmployeesGrowthForecast(self.forecasts_service),
+                    commands.HideErrors(commands_history),
+                    commands.ShowTitleEmployeesGrowthForecast(self.forecasts_service, commands_history),
+                    commands_history=commands_history
                 ),
             events.ForecastsEvent.SHOW_TITLE_EMPLOYEES_GROWTH_FORECAST_DIAGRAM:
-                commands.ShowTitleEmployeesGrowthForecastDiagram(self.diagrams_factory),
+                commands.ShowTitleEmployeesGrowthForecastDiagram(self.diagrams_factory, commands_history),
             events.OperationStatus.SUCCESS:
-                commands.ShowStatus(events.OperationStatus.SUCCESS),
+                commands.ShowStatus(events.OperationStatus.SUCCESS, commands_history),
             events.OperationStatus.PROCESSING:
-                commands.ShowStatus(events.OperationStatus.PROCESSING),
+                commands.ShowStatus(events.OperationStatus.PROCESSING, commands_history),
             events.OperationStatus.FAILED:
                 commands.MultiCommand(
-                    commands.ShowStatus(events.OperationStatus.FAILED),
-                    commands.ShowWrongData()
+                    commands.ShowStatus(events.OperationStatus.FAILED, commands_history),
+                    commands.ShowWrongData(commands_history),
+                    commands_history=commands_history
                 )
         }
         return ForecastsWindow(
@@ -427,10 +507,15 @@ class WindowsFactory:
             resizable=True,
         )
 
-    def create_diagram_window(self, title: str, parent_gui: "gui.GUI") -> DiagramWindow:
+    def create_diagram_window(
+            self,
+            title: str,
+            parent_gui: "gui.GUI",
+            commands_history: "history.CommandsHistory"
+    ) -> DiagramWindow:
         diagram_window_events_handlers: dict[events.Event, commands.Command] = {
-            events.WindowEvent.EXIT: commands.CloseWindow(),
-            events.WindowEvent.CLOSED: commands.CloseWindow(),
+            events.WindowEvent.EXIT: commands.CloseWindow(commands_history),
+            events.WindowEvent.CLOSED: commands.CloseWindow(commands_history),
         }
         return DiagramWindow(
             title=title,

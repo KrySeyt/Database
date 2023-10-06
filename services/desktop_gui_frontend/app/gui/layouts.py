@@ -4,7 +4,7 @@
 import PySimpleGUI as sg
 
 from .elements import EmployeeForm, Misc as ElementsMisc, Statistics, Forecasts, Diagrams
-from .events import EmployeeEvent, WindowEvent, StatisticsEvent, ForecastsEvent
+from .events import EmployeeEvent, WindowEvent, StatisticsEvent, ForecastsEvent, Misc as EventsMisc
 
 
 MAIN_WINDOW_LAYOUT = [
@@ -42,6 +42,7 @@ MAIN_WINDOW_LAYOUT = [
      sg.Button("Update employee", key=EmployeeEvent.UPDATE_EMPLOYEE),
      sg.Button("Delete employee", key=EmployeeEvent.DELETE_EMPLOYEES),
      sg.Button("Search employee", key=EmployeeEvent.SEARCH_EMPLOYEES),
+     sg.Button("Revert", key=EventsMisc.REVERT_ACTION),
      sg.Exit(key=WindowEvent.EXIT), sg.Text(key=ElementsMisc.OPERATION_STATUS_FIELD, visible=False)],
     [sg.Button("Statistics", key=WindowEvent.OPEN_STATISTICS_WINDOW),
      sg.Button("Forecasts", key=WindowEvent.OPEN_FORECASTS_WINDOW)],

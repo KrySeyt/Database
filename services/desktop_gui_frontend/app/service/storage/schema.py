@@ -139,7 +139,37 @@ class EmployeeOut(EmployeeBase):
     titles: list[TitleOut]
 
 
+class TopicSearchModel(Base):
+    name: str | None = None
+    number: str | None = None
+
+
+class PostSearchModel(Base):
+    name: str | None = None
+    code: str | None = None
+
+
+class CurrencySearchModel(Base):
+    name: str | None = None
+
+
+class SalarySearchModel(Base):
+    amount: str | None = None
+    currency: CurrencySearchModel
+
+
+class TitleSearchModel(Base):
+    name: str | None = None
+
+
 class EmployeeSearchModel(Base):
     name: str | None = None
     surname: str | None = None
     patronymic: str | None = None
+    service_number: str | None = None
+    department_number: str | None = None
+    employment_date: str | None = None
+    topic: TopicSearchModel
+    post: PostSearchModel
+    salary: SalarySearchModel
+    titles: list[TitleSearchModel]

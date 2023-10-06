@@ -129,8 +129,9 @@ class StorageBackend(StorageImp):
             raise BackendConnectionError from err
 
     def search_employees(self, employee_search_model: schema.EmployeeSearchModel) -> list[schema.Employee]:
-        endpoint_url = rf"{self.backend_url}/search/employees"
-
+        endpoint_url = rf"{self.backend_url}/storage/search/employees"
+        print("MODEL" * 100)
+        print(employee_search_model.dict())
         try:
             response = requests.post(
                 endpoint_url,
