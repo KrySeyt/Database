@@ -155,7 +155,7 @@ class CurrencySearchModel(Base):
 
 class SalarySearchModel(Base):
     amount: str | None = None
-    currency: CurrencySearchModel
+    currency: CurrencySearchModel | None = None
 
 
 class TitleSearchModel(Base):
@@ -169,7 +169,7 @@ class EmployeeSearchModel(Base):
     service_number: str | None = None
     department_number: str | None = None
     employment_date: str | None = None
-    topic: TopicSearchModel
-    post: PostSearchModel
-    salary: SalarySearchModel
-    titles: list[TitleSearchModel]
+    topic: TopicSearchModel | None = None
+    post: PostSearchModel | None = None
+    salary: SalarySearchModel | None = None
+    titles: list[TitleSearchModel] | None = None

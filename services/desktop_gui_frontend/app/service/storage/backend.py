@@ -130,21 +130,33 @@ class StorageBackend(StorageImp):
 
     def search_employees(self, employee_search_model: schema.EmployeeSearchModel) -> list[schema.Employee]:
         endpoint_url = rf"{self.backend_url}/storage/search/employees"
-        print("MODEL" * 100)
-        print(employee_search_model.dict())
+        print(employee_search_model.dict(exclude_none=True))
         try:
             response = requests.post(
                 endpoint_url,
-                json=employee_search_model.dict()
+                json=employee_search_model.dict(exclude_none=True)
             )
         except requests.exceptions.ConnectionError as err:
             raise BackendConnectionError from err
 
-        if response.status_code >= 500:
-            raise BackendServerError
-
         if __debug__:
             print(f"Status code: {response.status_code}")
             print(response.json())
+
+        if response.status_code >= 500:
+            raise BackendServerError
+
+        if response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY:
+            assert "detail" in response.json().keys(), "No key \"Detail\" in error logs"
+
+            errors_places: list[tuple[Any, ...]] = []
+            messages: list[str] = []
+            errors_types: list[str] = []
+            for err_info in response.json()["detail"]:
+                errors_places.append(tuple(err_info["loc"][1:]))
+                messages.append(err_info["msg"])
+                errors_types.append(err_info["type"])
+
+            raise WrongEmployeeData(errors_places, messages, errors_types)
 
         return [schema.Employee.parse_obj(i) for i in response.json()]

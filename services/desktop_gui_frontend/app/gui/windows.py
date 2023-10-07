@@ -131,8 +131,8 @@ class MainWindow(AppWindow, WindowWithOperationStatus, CanShowErrors, Observer):
             salary=self.get_salary()
         )
 
-    def get_employee_search_model(self) -> schema.EmployeeSearchModel:
-        return schema.EmployeeSearchModel(
+    def get_employee_search_model(self) -> schema.EmployeeSearchModel | None:
+        model = schema.EmployeeSearchModel(
             name=self[elements.EmployeeForm.NAME].get() or None,
             surname=self[elements.EmployeeForm.SURNAME].get() or None,
             patronymic=self[elements.EmployeeForm.PATRONYMIC].get() or None,
@@ -145,17 +145,27 @@ class MainWindow(AppWindow, WindowWithOperationStatus, CanShowErrors, Observer):
             salary=self.get_salary_search_model()
         )
 
+        for i in model.dict().values():
+            if i is not None:
+                return model
+        return None
+
     def get_topic(self) -> schema.TopicIn:
         return schema.TopicIn(
             name=self[elements.EmployeeForm.TOPIC_NAME].get(),
             number=self[elements.EmployeeForm.TOPIC_NUMBER].get()
         )
 
-    def get_topic_search_model(self) -> schema.TopicSearchModel:
-        return schema.TopicSearchModel(
+    def get_topic_search_model(self) -> schema.TopicSearchModel | None:
+        model = schema.TopicSearchModel(
             name=self[elements.EmployeeForm.TOPIC_NAME].get() or None,
             number=self[elements.EmployeeForm.TOPIC_NUMBER].get() or None
         )
+
+        for i in model.dict().values():
+            if i is not None:
+                return model
+        return None
 
     def get_post(self) -> schema.PostIn:
         return schema.PostIn(
@@ -163,11 +173,16 @@ class MainWindow(AppWindow, WindowWithOperationStatus, CanShowErrors, Observer):
             code=self[elements.EmployeeForm.POST_CODE].get()
         )
 
-    def get_post_search_model(self) -> schema.PostSearchModel:
-        return schema.PostSearchModel(
+    def get_post_search_model(self) -> schema.PostSearchModel | None:
+        model = schema.PostSearchModel(
             name=self[elements.EmployeeForm.POST_NAME].get() or None,
             code=self[elements.EmployeeForm.POST_CODE].get() or None
         )
+
+        for i in model.dict().values():
+            if i is not None:
+                return model
+        return None
 
     def get_salary(self) -> schema.SalaryIn:
         return schema.SalaryIn(
@@ -175,26 +190,36 @@ class MainWindow(AppWindow, WindowWithOperationStatus, CanShowErrors, Observer):
             currency=self.get_currency(),
         )
 
-    def get_salary_search_model(self) -> schema.SalarySearchModel:
-        return schema.SalarySearchModel(
+    def get_salary_search_model(self) -> schema.SalarySearchModel | None:
+        model = schema.SalarySearchModel(
             amount=self[elements.EmployeeForm.SALARY_AMOUNT].get() or None,
             currency=self.get_currency_search_model(),
         )
 
+        for i in model.dict().values():
+            if i is not None:
+                return model
+        return None
+
     def get_currency(self) -> schema.CurrencyIn:
         return schema.CurrencyIn(name=self[elements.EmployeeForm.SALARY_CURRENCY].get())
 
-    def get_currency_search_model(self) -> schema.CurrencySearchModel:
-        return schema.CurrencySearchModel(name=self[elements.EmployeeForm.SALARY_CURRENCY].get() or None)
+    def get_currency_search_model(self) -> schema.CurrencySearchModel | None:
+        model = schema.CurrencySearchModel(name=self[elements.EmployeeForm.SALARY_CURRENCY].get() or None)
+        for i in model.dict().values():
+            if i is not None:
+                return model
+        return None
 
     def get_titles(self) -> list[schema.TitleIn]:
         return [schema.TitleIn(name=title_name) for title_name in self[elements.EmployeeForm.TITLES].get().split(", ")]
 
-    def get_titles_search_models(self) -> list[schema.TitleSearchModel]:
+    def get_titles_search_models(self) -> list[schema.TitleSearchModel] | None:
         titles = []
         for title_name in self[elements.EmployeeForm.TITLES].get().split(", "):
-            titles.append(schema.TitleSearchModel(name=title_name))
-        return titles
+            if title_name:
+                titles.append(schema.TitleSearchModel(name=title_name))
+        return titles or None
 
     def show_errors(self, exception: WrongData) -> None:
         if isinstance(exception, WrongEmployeeData):

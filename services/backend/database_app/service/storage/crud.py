@@ -198,13 +198,55 @@ async def delete_employee(db: AsyncSession, employee_id: int) -> models.Employee
 
 
 async def search_employees(db: AsyncSession, search_model: schema.EmployeeSearchModel) -> list[models.Employee]:
-    search_params = {k: v for k, v in search_model.dict().items() if v is not None}
+    # TODO: Refactor this spaghetti
 
-    if not search_params:
-        return []
+    stmt = select(models.Employee)
 
-    stmt = select(models.Employee).where(
-        *[getattr(models.Employee, key) == search_params[key] for key in search_params]
-    )
+    if search_model.topic:
+        stmt = stmt.join(models.Topic)
+        if search_model.topic.name:
+            stmt = stmt.where(models.Topic.name == search_model.topic.name)
+        if search_model.topic.number:
+            stmt = stmt.where(models.Topic.number == search_model.topic.number)
+
+    if search_model.post:
+        stmt = stmt.join(models.Post)
+        if search_model.post.name:
+            stmt = stmt.where(models.Post.name == search_model.post.name)
+        if search_model.post.code:
+            stmt = stmt.where(models.Post.code == search_model.post.code)
+
+    if search_model.salary:
+        stmt = stmt.join(models.Salary)
+        if search_model.salary.amount:
+            stmt = stmt.where(models.Salary.amount == search_model.salary.amount)
+        if search_model.salary.currency:
+            stmt = stmt.join(models.Currency)
+            if search_model.salary.currency.name:
+                stmt = stmt.where(models.Currency.name == search_model.salary.currency.name)
+
+    if search_model.titles:
+        stmt = stmt.join(models.Title, models.Employee.titles)
+        titles_names = [title.name for title in search_model.titles]
+        stmt = stmt.where(models.Title.name.in_(titles_names))
+
+    if search_model.name:
+        stmt = stmt.where(models.Employee.name == search_model.name)
+
+    if search_model.surname:
+        stmt = stmt.where(models.Employee.surname == search_model.surname)
+
+    if search_model.patronymic:
+        stmt = stmt.where(models.Employee.patronymic == search_model.patronymic)
+
+    if search_model.department_number:
+        stmt = stmt.where(models.Employee.department_number == search_model.department_number)
+
+    if search_model.service_number:
+        stmt = stmt.where(models.Employee.service_number == search_model.service_number)
+
+    if search_model.employment_date:
+        stmt = stmt.where(models.Employee.employment_date == search_model.employment_date)
+
     db_employees = list((await db.scalars(stmt)).all())
     return db_employees

@@ -356,6 +356,9 @@ class SearchEmployees(Command):
 
         search_model = event_window.get_employee_search_model()
 
+        if not search_model:
+            return
+
         @events.raise_status_events(
             event_window,
             events.OperationStatus.SUCCESS,
@@ -376,6 +379,10 @@ class SelectEmployeesInTable(Command):
             return
 
         employees = values[events.EmployeeEvent.SELECT_EMPLOYEES]
+        
+        if not employees:
+            return
+
         event_window.select_employees_rows([emp.id for emp in employees])
 
 

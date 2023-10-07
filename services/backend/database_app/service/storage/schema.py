@@ -236,7 +236,37 @@ class EmployeeOut(EmployeeBase):
     titles: list[TitleOut]
 
 
+class TopicSearchModel(Base):
+    name: str | None = None
+    number: int | None = None
+
+
+class PostSearchModel(Base):
+    name: str | None = None
+    code: int | None = None
+
+
+class CurrencySearchModel(Base):
+    name: str | None = None
+
+
+class SalarySearchModel(Base):
+    amount: decimal.Decimal | None = None
+    currency: CurrencySearchModel | None = None
+
+
+class TitleSearchModel(Base):
+    name: str | None = None
+
+
 class EmployeeSearchModel(Base):
     name: str | None = None
     surname: str | None = None
     patronymic: str | None = None
+    department_number: int | None = None
+    service_number: int | None = None
+    employment_date: datetime.date | None = None
+    topic: TopicSearchModel | None
+    post: PostSearchModel | None
+    salary: SalarySearchModel | None
+    titles: list[TitleSearchModel] | None
